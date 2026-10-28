@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GRAM HUNTERS - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4A90D9;
+            --primary-dark: #2563EB;
+            --primary-light: #60A5FA;
+            --primary-glow: rgba(74, 144, 217, 0.4);
+            --bg: #0a0a0f;
+            --bg-secondary: #0f1423;
+            --bg-elevated: #141c30;
+            --glass-bg: rgba(74, 144, 217, 0.05);
+            --glass-border: rgba(74, 144, 217, 0.15);
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --text-muted: rgba(255, 255, 255, 0.35);
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --card-radius: 20px;
+            --card-radius-sm: 14px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(74, 144, 217, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
+        }
+
+        .login-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .login-logo {
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 50px var(--primary-glow);
+            animation: pulse 2s infinite;
+        }
+
+        .login-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px var(--primary-glow); }
+            50% { box-shadow: 0 0 70px var(--primary-glow); }
+        }
+
+        .login-container h1 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .login-sub {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .login-form { display: flex; flex-direction: column; gap: 14px; }
+
+        .login-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 16px;
+            transition: var(--transition);
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .login-error { color: var(--error); font-size: 13px; min-height: 20px; }
+
+        .container { max-width: 1440px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0 24px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 14px; }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 20px 18px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(74, 144, 217, 0.15);
+        }
+
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .stat-card .label i { color: var(--primary); font-size: 12px; }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            padding: 5px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 40px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab i { font-size: 13px; }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--glass-border);
+            color: var(--text);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.35s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .panel-card:hover { border-color: rgba(74, 144, 217, 0.25); }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-light);
+            letter-spacing: 0.3px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(74, 144, 217, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+        }
+
+        .form-control::placeholder { color: var(--text-muted); }
+        select.form-control { appearance: none; cursor: pointer; }
+        textarea.form-control { resize: vertical; min-height: 90px; }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(74, 144, 217, 0.25);
+        }
+
+        .btn-primary:hover { box-shadow: 0 8px 30px var(--primary-glow); }
+
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--error); color: #fff; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-info { background: var(--info); color: #fff; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover { background: var(--glass-border); color: var(--text); border-color: var(--primary); }
+
+        .btn-sm { padding: 6px 14px; font-size: 11px; }
+        .btn-icon { width: 34px; height: 34px; padding: 0; border-radius: 10px; }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-active { background: rgba(46, 204, 113, 0.15); color: var(--success); }
+        .badge-pending { background: rgba(243, 156, 18, 0.15); color: var(--warning); }
+        .badge-completed { background: rgba(52, 152, 219, 0.15); color: var(--info); }
+        .badge-rejected { background: rgba(231, 76, 60, 0.15); color: var(--error); }
+        .badge-coin { background: rgba(74, 144, 217, 0.15); color: var(--primary-light); }
+        .badge-power { background: rgba(243, 156, 18, 0.15); color: var(--warning); }
+        .badge-admin { background: rgba(52, 152, 219, 0.15); color: var(--info); }
+        .badge-user { background: rgba(149, 165, 166, 0.15); color: #95a5a6; }
+        .badge-main { background: rgba(74, 144, 217, 0.15); color: var(--primary-light); }
+        .badge-community { background: rgba(155, 89, 182, 0.15); color: #a569bd; }
+        .badge-blocked { background: rgba(231, 76, 60, 0.15); color: var(--error); }
+
+        .user-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            margin-top: 16px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .user-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .user-card-main {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-card-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .user-card-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        .user-card-id {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .user-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-card-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius-sm);
+            padding: 14px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .user-card-item:hover { border-color: rgba(74, 144, 217, 0.3); }
+
+        .user-card-item .label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .user-card-item .value {
+            display: block;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--primary-light);
+            font-family: 'Courier New', monospace;
+        }
+
+        .user-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .user-action-btn {
+            padding: 12px 14px;
+            border: none;
+            border-radius: var(--card-radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: #fff;
+        }
+
+        .user-action-btn i { font-size: 16px; }
+        .user-action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
+
+        .action-add-coin { background: linear-gradient(135deg, #4A90D9, #2563EB); }
+        .action-deduct-coin { background: linear-gradient(135deg, #2563EB, #1e40af); }
+        .action-add-power { background: linear-gradient(135deg, #f39c12, #d68910); }
+        .action-deduct-power { background: linear-gradient(135deg, #d68910, #935f07); }
+        .action-ban { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .action-unban { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .action-delete { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+        .action-reset { background: linear-gradient(135deg, #3498db, #2980b9); }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .modal.active { display: flex; animation: fadeIn 0.25s ease; }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 28px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 18px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn { flex: 1; }
+
+        .list-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: var(--transition);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .list-card:hover { border-color: rgba(74, 144, 217, 0.3); transform: translateY(-2px); }
+
+        .list-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .list-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .list-card-name { font-size: 15px; font-weight: 700; color: var(--primary-light); }
+
+        .list-card-id {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: monospace;
+            background: var(--glass-bg);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .list-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .list-card-body a { color: var(--primary-light); text-decoration: none; word-break: break-all; }
+        .list-card-body a:hover { text-decoration: underline; }
+
+        .list-card-body .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .list-card-body .label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+
+        .list-card-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 5px;
+            background: var(--glass-border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+            flex-shrink: 0;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 420px;
+        }
+
+        .toast {
+            background: var(--bg-elevated);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius-sm);
+            padding: 14px 20px;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(12px);
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--error); }
+        .toast.warning { border-left: 4px solid var(--warning); }
+        .toast.info { border-left: 4px solid var(--info); }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i { font-size: 40px; opacity: 0.3; margin-bottom: 12px; display: block; }
+        .empty-state p { font-size: 13px; }
+
+        .topusers-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .topuser-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px 50px;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-radius: var(--card-radius-sm);
+            border: 1px solid var(--glass-border);
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .topuser-item:hover { border-color: var(--primary); transform: translateX(4px); }
+
+        .topuser-item .rank { font-weight: 800; color: var(--primary-light); font-size: 14px; }
+
+        .topuser-item .user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+        .topuser-item .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--primary);
+            flex-shrink: 0;
+        }
+
+        .topuser-item .user-info .name { font-weight: 600; font-size: 13px; }
+        .topuser-item .user-info .id { font-size: 10px; color: var(--text-muted); font-family: monospace; }
+        .topuser-item .value { text-align: right; font-weight: 700; color: var(--primary-light); font-size: 14px; font-family: 'Courier New', monospace; }
+
+        .notif-preview {
+            background: var(--bg-secondary);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius-sm);
+            padding: 14px 18px;
+            min-height: 60px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .notif-preview b, .notif-preview strong { color: var(--primary-light); }
+        .notif-preview code { background: var(--glass-bg); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--glass-bg);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-size: 12px;
+        }
+
+        .tag-chip i { cursor: pointer; color: var(--error); font-size: 10px; }
+
+        .flex { display: flex; align-items: center; gap: 8px; }
+        .flex-wrap { flex-wrap: wrap; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mb-12 { margin-bottom: 12px; }
+        .text-muted { color: var(--text-muted); font-size: 12px; }
+        .text-center { text-align: center; }
+
+        @media (max-width: 700px) {
+            body { padding: 12px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .header h1 { font-size: 17px; }
+            .header-logo { width: 40px; height: 40px; }
+            .tab span { display: none; }
+            .tab { padding: 10px 14px; }
+            .stat-card .value { font-size: 22px; }
+            .topuser-item { grid-template-columns: 30px 1fr 80px 40px; font-size: 12px; }
+            .user-card-grid { grid-template-columns: 1fr 1fr; }
+            .user-actions-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(74, 144, 217, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="login-screen" class="login-screen">
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="https://slho.shop/i/8067" alt="Logo">
+        </div>
+        <h1>🎯 Admin Panel</h1>
+        <p class="login-sub">Enter password to access</p>
+        <div class="login-form">
+            <input type="password" id="login-password" class="login-input" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()">
+            <button class="login-btn" onclick="login()"><i class="fas fa-arrow-right"></i> Login</button>
+            <div id="login-error" class="login-error"></div>
+        </div>
+    </div>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <img src="https://slho.shop/i/8067" class="header-logo" alt="Logo">
+                <h1><i class="fas fa-crown"></i> GRAM HUNTERS - Admin Panel</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary btn-sm" onclick="loadStats()"><i class="fas fa-sync"></i> Refresh Stats</button>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card"><div class="value" id="stat-users">-</div><div class="label"><i class="fas fa-users"></i> Total Users</div></div>
+            <div class="stat-card"><div class="value" id="stat-withdrawals">-</div><div class="label"><i class="fas fa-arrow-up-right-from-square"></i> Withdrawals</div></div>
+            <div class="stat-card"><div class="value" id="stat-tasks">-</div><div class="label"><i class="fas fa-tasks"></i> Total Tasks</div></div>
+            <div class="stat-card"><div class="value" id="stat-codes">-</div><div class="label"><i class="fas fa-ticket"></i> Promo Codes</div></div>
+        </div>
+
+        <div class="tabs" id="tabs">
+            <div class="tab active" data-tab="users"><i class="fas fa-users"></i><span> Users</span></div>
+            <div class="tab" data-tab="tasks"><i class="fas fa-tasks"></i><span> Tasks</span></div>
+            <div class="tab" data-tab="withdrawals"><i class="fas fa-arrow-up-right-from-square"></i><span> Withdrawals</span></div>
+            <div class="tab" data-tab="promo"><i class="fas fa-ticket"></i><span> Promo Codes</span></div>
+            <div class="tab" data-tab="notifications"><i class="fas fa-bell"></i><span> Notifications</span></div>
+            <div class="tab" data-tab="topusers"><i class="fas fa-chart-line"></i><span> Top Users</span></div>
+        </div>
+
+        <div class="tab-content active" id="tab-users">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-search"></i> Search Users</div>
+                <div class="filter-row">
+                    <input class="form-control" id="user-search-input" placeholder="Search by ID, Name, Username...">
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="user-search-btn"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <div id="user-result"></div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-tasks">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-plus-circle"></i> Create Task</div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Task Name</label><input class="form-control" id="task-create-name" placeholder="Enter task name"></div>
+                    <div class="form-group"><label>Task URL</label><input class="form-control" id="task-create-url" placeholder="https://..."></div>
+                    <div class="form-group"><label>Category</label>
+                        <select class="form-control" id="task-create-category">
+                            <option value="main">Main</option>
+                            <option value="community">Community</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Reward Power</label><input class="form-control" id="task-create-reward" type="number" value="10"></div>
+                    <div class="form-group"><label>Max Completions</label><input class="form-control" id="task-create-max" type="number" value="100"></div>
+                    <div class="form-group"><label>Owner ID</label><input class="form-control" id="task-create-owner" type="number" placeholder="0 = Admin"></div>
+                    <div class="form-group"><label>Verification Required</label>
+                        <select class="form-control" id="task-create-verification">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="task-create-btn"><i class="fas fa-plus"></i> Create Task</button>
+            </div>
+
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-filter"></i> Filter Tasks</div>
+                <div class="filter-row">
+                    <input class="form-control" id="task-search-id" placeholder="Task ID...">
+                    <input class="form-control" id="task-search-owner" placeholder="Owner ID..." type="number">
+                    <select class="form-control" id="task-search-status">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <select class="form-control" id="task-search-category">
+                        <option value="">All Categories</option>
+                        <option value="main">Main</option>
+                        <option value="community">Community</option>
+                    </select>
+                    <select class="form-control" id="task-search-creator">
+                        <option value="">All Creators</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="task-search-btn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-outline" onclick="clearTaskFilters()"><i class="fas fa-times"></i> Clear</button>
+                </div>
+            </div>
+
+            <div id="tasks-container"></div>
+        </div>
+
+        <div class="tab-content" id="tab-withdrawals">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-filter"></i> Filter Withdrawals</div>
+                <div class="filter-row">
+                    <input class="form-control" id="withdrawal-search-user" placeholder="User ID..." type="number">
+                    <select class="form-control" id="withdrawal-search-status">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="withdrawal-search-btn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-outline" onclick="clearWithdrawalFilters()"><i class="fas fa-times"></i> Clear</button>
+                </div>
+            </div>
+            <div id="withdrawals-container"></div>
+        </div>
+
+        <div class="tab-content" id="tab-promo">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-plus-circle"></i> Create Promo Code</div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Code</label>
+                        <div class="flex">
+                            <input class="form-control" id="promo-code" placeholder="Enter code">
+                            <button class="btn btn-outline btn-icon" id="promo-generate-btn"><i class="fas fa-dice"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>Reward Amount</label><input class="form-control" id="promo-reward" type="number" value="100"></div>
+                    <div class="form-group"><label>Reward Type</label>
+                        <select class="form-control" id="promo-type">
+                            <option value="power">Power</option>
+                            <option value="coin">COIN</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Max Uses</label><input class="form-control" id="promo-max-uses" type="number" value="999999"></div>
+                    <div class="form-group"><label>Required Channel (optional)</label><input class="form-control" id="promo-required-channel" placeholder="@channel or username"></div>
+                </div>
+                <button class="btn btn-primary" id="promo-create-btn"><i class="fas fa-plus"></i> Create Promo</button>
+            </div>
+
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-filter"></i> Filter Promo Codes</div>
+                <div class="filter-row">
+                    <input class="form-control" id="promo-search-code" placeholder="Code...">
+                    <input class="form-control" id="promo-search-owner" placeholder="Owner ID..." type="number">
+                    <select class="form-control" id="promo-search-status">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select class="form-control" id="promo-search-creator">
+                        <option value="">All Creators</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="promo-search-btn"><i class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-outline" onclick="clearPromoFilters()"><i class="fas fa-times"></i> Clear</button>
+                </div>
+            </div>
+
+            <div id="promo-container"></div>
+        </div>
+
+        <div class="tab-content" id="tab-notifications">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-bell"></i> Send Notification</div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Target</label>
+                        <select class="form-control" id="notif-target">
+                            <option value="all">All Users</option>
+                            <option value="single">Single User</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="notif-user-group" style="display:none;">
+                        <label>User ID</label>
+                        <input class="form-control" id="notif-user-id" type="number" placeholder="Enter User ID">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Message (HTML supported)</label>
+                    <div class="flex flex-wrap mb-8">
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('b')"><b>B</b></button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('i')"><i>I</i></button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('u')"><u>U</u></button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('code')"><code>code</code></button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('pre')">pre</button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('a')">link</button>
+                        <button class="btn btn-outline btn-sm" onclick="insertTag('br')">br</button>
+                    </div>
+                    <textarea class="form-control" id="notif-message" placeholder="Enter your message..." rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Preview</label>
+                    <div class="notif-preview" id="notif-preview">Your message will appear here</div>
+                    <button class="btn btn-outline btn-sm mt-8" id="notif-preview-btn"><i class="fas fa-eye"></i> Update Preview</button>
+                </div>
+                <div class="form-group">
+                    <label>Photo URL (optional)</label>
+                    <input class="form-control" id="notif-photo" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Buttons</label>
+                    <div class="grid-2">
+                        <input class="form-control" id="notif-btn-name" placeholder="Button Name">
+                        <input class="form-control" id="notif-btn-url" placeholder="Button URL">
+                    </div>
+                    <button class="btn btn-outline btn-sm mt-8" id="notif-add-btn"><i class="fas fa-plus"></i> Add Button</button>
+                    <div id="notif-buttons-list" class="mt-8 flex flex-wrap"></div>
+                </div>
+                <button class="btn btn-primary" id="notif-send-btn"><i class="fas fa-paper-plane"></i> Send Notification</button>
+                <div class="mt-12" id="notif-progress" style="display:none;">
+                    <div class="text-muted mb-8">Sending...</div>
+                    <div class="progress-bar"><div class="progress-fill" id="notif-progress-fill" style="width:0%"></div></div>
+                    <div class="text-muted mt-8" id="notif-status-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-topusers">
+            <div class="panel-card">
+                <div class="card-title"><i class="fas fa-chart-line"></i> Top Users</div>
+                <div class="filter-row">
+                    <select class="form-control" id="topusers-type">
+                        <option value="power">Top Power</option>
+                        <option value="coin" selected>Top COIN</option>
+                    </select>
+                    <select class="form-control" id="topusers-limit">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" id="topusers-btn"><i class="fas fa-search"></i> Load</button>
+                </div>
+                <div id="topusers-container" class="mt-16">
+                    <div class="empty-state"><i class="fas fa-chart-line"></i><p>Click Load to view top users</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="balance-modal">
+    <div class="modal-content">
+        <div class="modal-title"><i class="fas fa-coins"></i> <span id="balance-modal-title">Modify Balance</span></div>
+        <div class="modal-subtitle" id="balance-modal-subtitle"></div>
+        <div class="form-group">
+            <label>Amount</label>
+            <input class="form-control" id="balance-amount" type="number" placeholder="Enter amount" step="0.00001">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeBalanceModal()">Cancel</button>
+            <button class="btn btn-primary" id="balance-confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="confirm-modal">
+    <div class="modal-content">
+        <div class="modal-title" id="confirm-title"><i class="fas fa-exclamation-triangle"></i> Confirm</div>
+        <div class="modal-subtitle" id="confirm-message"></div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn-danger" id="confirm-action-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const API_URL = window.location.origin + '/api';
+let adminPassword = localStorage.getItem('admin_password') || '12345';
+let notifButtons = [];
+let loginAttempts = 0;
+let isLocked = false;
+let currentUser = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        });
+    });
+});
+
+function insertTag(tag) {
+    const textarea = document.getElementById('notif-message');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selectedText = text.substring(start, end);
+    const tags = {
+        'b': ['<b>', '</b>'],
+        'i': ['<i>', '</i>'],
+        'u': ['<u>', '</u>'],
+        'code': ['<code>', '</code>'],
+        'pre': ['<pre>', '</pre>'],
+        'a': ['<a href="https://">', '</a>'],
+        'br': ['<br>', '']
+    };
+    const tagPair = tags[tag];
+    if (!tagPair) return;
+    textarea.value = text.substring(0, start) + tagPair[0] + selectedText + tagPair[1] + text.substring(end);
+    textarea.focus();
+    updatePreview();
+}
+
+function login() {
+    if (isLocked) {
+        document.getElementById('login-error').textContent = 'Too many failed attempts. Try again later.';
+        return;
+    }
+    const input = document.getElementById('login-password');
+    const error = document.getElementById('login-error');
+    if (input.value === adminPassword) {
+        loginAttempts = 0;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        initApp();
+    } else {
+        loginAttempts++;
+        error.textContent = 'Wrong password! (' + loginAttempts + '/5)';
+        input.value = '';
+        input.focus();
+        if (loginAttempts >= 5) {
+            isLocked = true;
+            error.textContent = 'Locked for 5 minutes.';
+            setTimeout(function() {
+                isLocked = false;
+                loginAttempts = 0;
+                error.textContent = '';
+            }, 300000);
+        }
+    }
+}
+
+function toast(message, type) {
+    type = type || 'info';
+    const container = document.getElementById('toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(function() {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(50px)';
+        setTimeout(function() { el.remove(); }, 300);
+    }, 4500);
+}
+
+async function apiCall(endpoint, data) {
+    data = data || {};
+    try {
+        const response = await fetch(API_URL + endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+            const errMsg = result.error || result.message || ('HTTP ' + response.status);
+            console.error('❌ [API] ' + endpoint + ':', errMsg);
+            toast(errMsg, 'error');
+            return null;
+        }
+
+        if (result && result.success === false) {
+            const errMsg = result.error || 'Operation failed';
+            console.error('❌ [API] ' + endpoint + ':', errMsg);
+            toast(errMsg, 'error');
+            return result;
+        }
+
+        return result;
+    } catch (e) {
+        console.error('❌ [API] ' + endpoint + ' network error:', e.message);
+        toast('Network error: ' + e.message, 'error');
+        return null;
+    }
+}
+
+function formatNumber(num) {
+    num = parseFloat(num) || 0;
+    if (num >= 1000000) return (num / 1000000).toFixed(3) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(3) + 'K';
+    return num.toFixed(num % 1 === 0 ? 0 : 3);
+}
+
+function formatDate(ts) {
+    if (!ts) return 'N/A';
+    const d = new Date(ts);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return day + '.' + month + '.' + year + ' ' + String(hours).padStart(2, '0') + ':' + minutes + ' ' + ampm;
+}
+
+function truncate(str, len) {
+    if (!str) return 'User';
+    return str.length > len ? str.substring(0, len) + '…' : str;
+}
+
+function initApp() {
+    loadStats();
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    document.getElementById('user-search-btn').addEventListener('click', loadUsers);
+    document.getElementById('user-search-input').addEventListener('keypress', e => { if (e.key === 'Enter') loadUsers(); });
+
+    document.getElementById('task-search-btn').addEventListener('click', loadTasks);
+    document.getElementById('task-create-btn').addEventListener('click', createTask);
+
+    document.getElementById('withdrawal-search-btn').addEventListener('click', loadWithdrawals);
+
+    document.getElementById('promo-generate-btn').addEventListener('click', generatePromo);
+    document.getElementById('promo-create-btn').addEventListener('click', createPromo);
+    document.getElementById('promo-search-btn').addEventListener('click', loadPromoCodes);
+
+    document.getElementById('notif-target').addEventListener('change', toggleNotifUser);
+    document.getElementById('notif-add-btn').addEventListener('click', addNotifButton);
+    document.getElementById('notif-send-btn').addEventListener('click', sendNotification);
+    document.getElementById('notif-message').addEventListener('input', updatePreview);
+    document.getElementById('notif-preview-btn').addEventListener('click', updatePreview);
+
+    document.getElementById('topusers-btn').addEventListener('click', loadTopUsers);
+}
+
+async function loadStats() {
+    const result = await apiCall('/admin/stats');
+    if (result && result.success) {
+        document.getElementById('stat-users').textContent = result.data.totalUsers || 0;
+        document.getElementById('stat-withdrawals').textContent = result.data.totalWithdrawals || 0;
+        document.getElementById('stat-tasks').textContent = result.data.totalTasks || 0;
+        document.getElementById('stat-codes').textContent = result.data.totalCodes || 0;
+    }
+}
+
+async function loadUsers() {
+    const query = document.getElementById('user-search-input').value.trim();
+    const container = document.getElementById('user-result');
+
+    if (!query) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Enter search query</p></div>';
+        return;
+    }
+
+    container.innerHTML = '<div class="text-center mt-12"><span class="spinner"></span></div>';
+
+    const result = await apiCall('/admin/users/search', { query: query });
+
+    if (!result || !result.success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>User not found</p></div>';
+        return;
+    }
+
+    const users = result.data || [];
+    if (users.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>No users found</p></div>';
+        return;
+    }
+
+    container.innerHTML = users.map(u => renderUserCard(u)).join('');
+}
+
+function renderUserCard(u) {
+    const status = u.state === 'ban' ? 'Banned' : 'Active';
+    const statusClass = u.state === 'ban' ? 'badge-rejected' : 'badge-active';
+    const blockedBadge = u.bot_blocked ? '<span class="badge badge-blocked"><i class="fas fa-ban"></i> Bot Blocked</span>' : '';
+    const minerDisplay = u.miner_id || 'None';
+    const ownedCount = (u.owned_miners || []).length;
+
+    return `
+        <div class="user-card">
+            <div class="user-card-header">
+                <div class="user-card-main">
+                    <img src="${u.photo_url || 'https://slho.shop/i/8067'}" class="user-card-avatar" onerror="this.src='https://slho.shop/i/8067'">
+                    <div>
+                        <div class="user-card-name">${u.first_name || 'User'}</div>
+                        <div class="user-card-id">ID: ${u.id}${u.username ? ' · @' + u.username : ''}</div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap">
+                    <span class="badge ${statusClass}">${status}</span>
+                    ${blockedBadge}
+                </div>
+            </div>
+            <div class="user-card-grid">
+                <div class="user-card-item"><span class="label">COIN</span><span class="value">${formatNumber(u.coin_balance || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Power</span><span class="value">${formatNumber(u.power_balance || 0)}</span></div>
+                <div class="user-card-item"><span class="label">GRAM</span><span class="value">${formatNumber(u.gram_balance || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Level</span><span class="value">${u.level || 1}</span></div>
+                <div class="user-card-item"><span class="label">Referrals</span><span class="value">${u.total_referrals || 0}</span></div>
+                <div class="user-card-item"><span class="label">Tasks Done</span><span class="value">${u.total_tasks_completed || 0}</span></div>
+                <div class="user-card-item"><span class="label">Mining Starts</span><span class="value">${u.total_mining_starts || 0}</span></div>
+                <div class="user-card-item"><span class="label">Ref Power Earn</span><span class="value">${formatNumber(u.referral_power_earnings || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Ref Coin Earn</span><span class="value">${formatNumber(u.referral_coin_earnings || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Active Miner</span><span class="value" style="font-size:13px;">${minerDisplay}</span></div>
+                <div class="user-card-item"><span class="label">Owned Miners</span><span class="value">${ownedCount}</span></div>
+            </div>
+            <div class="user-actions-grid">
+                <button class="user-action-btn action-add-coin" onclick="openBalanceModal(${u.id}, 'coin_balance', 'add', '${(u.first_name || 'User').replace(/'/g, '')}')">
+                    <i class="fas fa-plus-circle"></i> Add COIN
+                </button>
+                <button class="user-action-btn action-deduct-coin" onclick="openBalanceModal(${u.id}, 'coin_balance', 'deduct', '${(u.first_name || 'User').replace(/'/g, '')}')">
+                    <i class="fas fa-minus-circle"></i> Deduct COIN
+                </button>
+                <button class="user-action-btn action-add-power" onclick="openBalanceModal(${u.id}, 'power_balance', 'add', '${(u.first_name || 'User').replace(/'/g, '')}')">
+                    <i class="fas fa-bolt"></i> Add Power
+                </button>
+                <button class="user-action-btn action-deduct-power" onclick="openBalanceModal(${u.id}, 'power_balance', 'deduct', '${(u.first_name || 'User').replace(/'/g, '')}')">
+                    <i class="fas fa-bolt"></i> Deduct Power
+                </button>
+                <button class="user-action-btn action-reset" onclick="resetDevice(${u.id})">
+                    <i class="fas fa-mobile-alt"></i> Reset Device
+                </button>
+                <button class="user-action-btn action-reset" onclick="resetDaily(${u.id})">
+                    <i class="fas fa-redo"></i> Reset Daily
+                </button>
+                ${u.state === 'active' ?
+                    `<button class="user-action-btn action-ban" onclick="banUser(${u.id})"><i class="fas fa-ban"></i> Ban User</button>` :
+                    `<button class="user-action-btn action-unban" onclick="unbanUser(${u.id})"><i class="fas fa-check"></i> Unban User</button>`
+                }
+                <button class="user-action-btn action-delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i> Delete User</button>
+            </div>
+        </div>
+    `;
+}
+
+let balanceModalData = null;
+
+function openBalanceModal(userId, type, action, userName) {
+    balanceModalData = { userId, type, action };
+    const typeLabel = type === 'coin_balance' ? 'COIN' : 'Power';
+    const actionLabel = action === 'add' ? 'Add' : 'Deduct';
+    document.getElementById('balance-modal-title').textContent = actionLabel + ' ' + typeLabel;
+    document.getElementById('balance-modal-subtitle').textContent = actionLabel + ' ' + typeLabel + ' for ' + userName + ' (ID: ' + userId + ')';
+    document.getElementById('balance-amount').value = '';
+    document.getElementById('balance-modal').classList.add('active');
+    setTimeout(() => document.getElementById('balance-amount').focus(), 100);
+}
+
+function closeBalanceModal() {
+    document.getElementById('balance-modal').classList.remove('active');
+    balanceModalData = null;
+}
+
+document.getElementById('balance-confirm-btn')?.addEventListener('click', async function() {
+    if (!balanceModalData) return;
+    const amount = parseFloat(document.getElementById('balance-amount').value);
+    if (!amount || amount <= 0) {
+        toast('Enter a valid amount', 'warning');
+        return;
+    }
+    const { userId, type, action } = balanceModalData;
+    const endpoint = action === 'add' ? '/admin/balance/add' : '/admin/balance/deduct';
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner"></span>';
+    const result = await apiCall(endpoint, { userId, amount, type });
+    this.disabled = false;
+    this.innerHTML = 'Confirm';
+    if (result && result.success) {
+        toast(action === 'add' ? 'Balance added!' : 'Balance deducted!', 'success');
+        closeBalanceModal();
+        loadUsers();
+    }
+});
+
+let confirmCallback = null;
+
+function showConfirm(title, message, callback, danger = true) {
+    document.getElementById('confirm-title').innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + title;
+    document.getElementById('confirm-message').textContent = message;
+    confirmCallback = callback;
+    const btn = document.getElementById('confirm-action-btn');
+    btn.className = danger ? 'btn btn-danger' : 'btn btn-primary';
+    document.getElementById('confirm-modal').classList.add('active');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-modal').classList.remove('active');
+    confirmCallback = null;
+}
+
+document.getElementById('confirm-action-btn')?.addEventListener('click', async function() {
+    if (confirmCallback) {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner"></span>';
+        await confirmCallback();
+        this.disabled = false;
+        this.innerHTML = 'Confirm';
+    }
+    closeConfirmModal();
+});
+
+async function banUser(userId) {
+    showConfirm('Ban User', 'Are you sure you want to ban user ' + userId + '?', async () => {
+        const result = await apiCall('/admin/users/ban', { userId });
+        if (result && result.success) {
+            toast('User banned', 'success');
+            loadUsers();
+        }
+    });
+}
+
+async function unbanUser(userId) {
+    showConfirm('Unban User', 'Are you sure you want to unban user ' + userId + '?', async () => {
+        const result = await apiCall('/admin/users/unban', { userId });
+        if (result && result.success) {
+            toast('User unbanned', 'success');
+            loadUsers();
+        }
+    }, false);
+}
+
+async function resetDevice(userId) {
+    showConfirm('Reset Device Lock', 'Reset device binding for user ' + userId + '?', async () => {
+        const result = await apiCall('/admin/users/reset-device', { userId });
+        if (result && result.success) {
+            toast('Device reset', 'success');
+            loadUsers();
+        }
+    }, false);
+}
+
+async function resetDaily(userId) {
+    showConfirm('Reset Daily Limits', 'Reset all daily limits for user ' + userId + '?', async () => {
+        const result = await apiCall('/admin/users/reset-daily', { userId });
+        if (result && result.success) {
+            toast('Daily limits reset', 'success');
+            loadUsers();
+        }
+    }, false);
+}
+
+async function deleteUser(userId) {
+    showConfirm('Delete User', 'PERMANENTLY delete user ' + userId + ' and ALL their data? This cannot be undone!', async () => {
+        const result = await apiCall('/admin/users/delete', { userId });
+        if (result && result.success) {
+            toast('User deleted permanently', 'success');
+            const searchVal = document.getElementById('user-search-input').value.trim();
+            if (searchVal) loadUsers();
+            const topusersContainer = document.getElementById('topusers-container');
+            if (topusersContainer && topusersContainer.querySelector('.topusers-grid')) loadTopUsers();
+        }
+    });
+}
+
+async function createTask() {
+    const name = document.getElementById('task-create-name').value.trim();
+    const url = document.getElementById('task-create-url').value.trim();
+    const category = document.getElementById('task-create-category').value;
+    const reward = parseInt(document.getElementById('task-create-reward').value) || 10;
+    const maxCompletions = parseInt(document.getElementById('task-create-max').value) || 100;
+    const owner = parseInt(document.getElementById('task-create-owner').value) || 0;
+    const verification = document.getElementById('task-create-verification').value === 'true';
+
+    if (!name || name.length < 3) { toast('Enter a valid task name (3+ chars)', 'warning'); return; }
+    if (!url || !url.startsWith('https://')) { toast('Enter a valid URL starting with https://', 'warning'); return; }
+
+    const btn = document.getElementById('task-create-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    const result = await apiCall('/admin/tasks/create', {
+        name, url, category, reward, maxCompletions, owner, verification
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Create Task';
+
+    if (result && result.success) {
+        toast('Task created successfully!', 'success');
+        document.getElementById('task-create-name').value = '';
+        document.getElementById('task-create-url').value = '';
+        loadTasks();
+    }
+}
+
+function clearTaskFilters() {
+    document.getElementById('task-search-id').value = '';
+    document.getElementById('task-search-owner').value = '';
+    document.getElementById('task-search-status').value = '';
+    document.getElementById('task-search-category').value = '';
+    document.getElementById('task-search-creator').value = '';
+    document.getElementById('tasks-container').innerHTML = '';
+}
+
+async function loadTasks() {
+    const taskId = document.getElementById('task-search-id').value.trim();
+    const owner = document.getElementById('task-search-owner').value;
+    const status = document.getElementById('task-search-status').value;
+    const category = document.getElementById('task-search-category').value;
+    const creator = document.getElementById('task-search-creator').value;
+
+    const container = document.getElementById('tasks-container');
+    container.innerHTML = '<div class="text-center mt-12"><span class="spinner"></span></div>';
+
+    const result = await apiCall('/admin/tasks/list', {
+        taskId: taskId || null,
+        owner: owner ? parseInt(owner) : null,
+        status: status || null,
+        category: category || null,
+        creator: creator || null
+    });
+
+    if (!result || !result.success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found</p></div>';
+        return;
+    }
+
+    const tasks = result.data || [];
+    if (tasks.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks found</p></div>';
+        return;
+    }
+
+    container.innerHTML = tasks.map(t => renderTaskCard(t)).join('');
+}
+
+function renderTaskCard(t) {
+    const statusClass = t.status === 'active' ? 'badge-active' :
+        t.status === 'pending' ? 'badge-pending' :
+        t.status === 'completed' ? 'badge-completed' : 'badge-rejected';
+    const progress = t.total > 0 ? (t.total_completed / t.total * 100) : 0;
+    const isAdminTask = t.owner === 0 || t.owner === null || t.owner === undefined;
+    const isCommunity = t.category === 'community';
+    const catClass = isCommunity ? 'badge-community' : 'badge-main';
+    const catIcon = isCommunity ? 'fa-users' : 'fa-home';
+
+    return `
+        <div class="list-card">
+            <div class="list-card-header">
+                <div class="list-card-title">
+                    <span class="list-card-name">${t.name}</span>
+                    <span class="list-card-id">#${t.id}</span>
+                    <span class="badge ${catClass}"><i class="fas ${catIcon}"></i> ${t.category || 'main'}</span>
+                    ${isAdminTask ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-user">User</span>'}
+                </div>
+                <span class="badge ${statusClass}">${t.status}</span>
+            </div>
+            <div class="list-card-body">
+                <div class="row"><span class="label">Owner:</span> <span>${isAdminTask ? 'Admin' : (t.owner || 'N/A')}</span></div>
+                <div class="row"><span class="label">URL:</span> <a href="${t.url}" target="_blank">${t.url}</a></div>
+                <div class="row">
+                    <span class="label">Reward:</span>
+                    <span>${t.reward || 0} Power</span>
+                </div>
+                <div class="progress-row">
+                    <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div></div>
+                    <span class="progress-text">${t.total_completed || 0}/${t.total}</span>
+                </div>
+            </div>
+            <div class="list-card-actions">
+                ${t.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="updateTaskStatus('${t.id}','active')"><i class="fas fa-check"></i> Approve</button>` : ''}
+                ${t.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="updateTaskStatus('${t.id}','rejected')"><i class="fas fa-times"></i> Reject</button>` : ''}
+                <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+        </div>
+    `;
+}
+
+async function updateTaskStatus(taskId, status) {
+    const result = await apiCall('/admin/tasks/update-status', { taskId, status });
+    if (result && result.success) { toast('Task ' + status, 'success'); loadTasks(); }
+}
+
+async function deleteTask(taskId) {
+    showConfirm('Delete Task', 'Delete task ' + taskId + '?', async () => {
+        const result = await apiCall('/admin/tasks/delete', { taskId });
+        if (result && result.success) { toast('Task deleted', 'success'); loadTasks(); }
+    });
+}
+
+function clearWithdrawalFilters() {
+    document.getElementById('withdrawal-search-user').value = '';
+    document.getElementById('withdrawal-search-status').value = '';
+    document.getElementById('withdrawals-container').innerHTML = '';
+}
+
+async function loadWithdrawals() {
+    const userId = document.getElementById('withdrawal-search-user').value;
+    const status = document.getElementById('withdrawal-search-status').value;
+    const container = document.getElementById('withdrawals-container');
+
+    if (!userId && !status) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-filter"></i><p>Choose a filter and click Search</p></div>';
+        return;
+    }
+
+    container.innerHTML = '<div class="text-center mt-12"><span class="spinner"></span></div>';
+
+    const result = await apiCall('/admin/withdrawals/list', {
+        userId: userId ? parseInt(userId) : null,
+        status: status || null
+    });
+
+    if (!result || !result.success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No withdrawals</p></div>';
+        return;
+    }
+
+    const withdrawals = result.data || [];
+    if (withdrawals.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No withdrawals</p></div>';
+        return;
+    }
+
+    container.innerHTML = withdrawals.map(w => {
+        const statusClass = w.status === 'completed' ? 'badge-completed' :
+            w.status === 'processing' ? 'badge-completed' :
+            w.status === 'pending' ? 'badge-pending' :
+            w.status === 'failed' ? 'badge-rejected' : 'badge-rejected';
+        const dateStr = formatDate(w.timestamp);
+        const explorerLink = w.tx_hash ? `<div class="row"><span class="label">TX:</span> <a href="https://tonscan.org/tx/${w.tx_hash}" target="_blank">View on explorer</a></div>` : '';
+        return `
+            <div class="list-card">
+                <div class="list-card-header">
+                    <div class="list-card-title">
+                        <span class="list-card-name">${(w.gram_amount || 0).toFixed(8)} GRAM</span>
+                        <span class="list-card-id">#${w.id}</span>
+                    </div>
+                    <span class="badge ${statusClass}">${w.status}</span>
+                </div>
+                <div class="list-card-body">
+                    <div class="row"><span class="label">User:</span> <span>${w.user_id}</span></div>
+                    <div class="row"><span class="label">COIN:</span> <span>${formatNumber(w.amount)}</span></div>
+                    <div class="row"><span class="label">Wallet:</span> <span style="font-family:monospace;font-size:11px;">${w.wallet_masked || 'N/A'}</span></div>
+                    ${w.tx_id ? `<div class="row"><span class="label">Track ID:</span> <span style="font-family:monospace;font-size:11px;">${w.tx_id}</span></div>` : ''}
+                    <div class="row"><span class="label">Date:</span> <span>${dateStr}</span></div>
+                    ${explorerLink}
+                </div>
+                <div class="list-card-actions">
+                    ${w.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="updateWithdrawalStatus('${w.id}','completed')"><i class="fas fa-check"></i> Approve</button>` : ''}
+                    ${w.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="updateWithdrawalStatus('${w.id}','rejected')"><i class="fas fa-times"></i> Reject</button>` : ''}
+                    <button class="btn btn-danger btn-sm" onclick="deleteWithdrawal('${w.id}')"><i class="fas fa-trash"></i> Delete</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function updateWithdrawalStatus(transactionId, status) {
+    const msg = status === 'rejected' ? 'Reject withdrawal and refund COIN?' : 'Approve withdrawal?';
+    showConfirm('Update Withdrawal', msg, async () => {
+        const result = await apiCall('/admin/withdrawals/update-status', { transactionId, status });
+        if (result && result.success) { toast('Withdrawal ' + status, 'success'); loadWithdrawals(); }
+    }, status === 'completed');
+}
+
+async function deleteWithdrawal(transactionId) {
+    showConfirm('Delete Withdrawal', 'Delete withdrawal ' + transactionId + '?', async () => {
+        const result = await apiCall('/admin/withdrawals/delete', { transactionId });
+        if (result && result.success) { toast('Withdrawal deleted', 'success'); loadWithdrawals(); }
+    });
+}
+
+function generatePromo() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('promo-code').value = code;
+}
+
+async function createPromo() {
+    const code = document.getElementById('promo-code').value.trim().toUpperCase();
+    const reward = parseFloat(document.getElementById('promo-reward').value) || 100;
+    const rewardType = document.getElementById('promo-type').value;
+    const maxUses = parseInt(document.getElementById('promo-max-uses').value) || 999999;
+    const requiredChannel = document.getElementById('promo-required-channel').value.trim().replace('@', '') || null;
+
+    if (!code || code.length < 3) { toast('Enter a valid code (3+ chars)', 'warning'); return; }
+
+    const btn = document.getElementById('promo-create-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    const result = await apiCall('/admin/promo/create', { code, reward, rewardType, maxUses, requiredChannel });
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Create Promo';
+
+    if (result && result.success) {
+        toast('Promo created!', 'success');
+        document.getElementById('promo-code').value = '';
+        document.getElementById('promo-required-channel').value = '';
+        loadPromoCodes();
+    }
+}
+
+function clearPromoFilters() {
+    document.getElementById('promo-search-code').value = '';
+    document.getElementById('promo-search-owner').value = '';
+    document.getElementById('promo-search-status').value = '';
+    document.getElementById('promo-search-creator').value = '';
+    document.getElementById('promo-container').innerHTML = '';
+}
+
+async function loadPromoCodes() {
+    const code = document.getElementById('promo-search-code').value.trim();
+    const owner = document.getElementById('promo-search-owner').value;
+    const status = document.getElementById('promo-search-status').value;
+    const creator = document.getElementById('promo-search-creator').value;
+
+    const container = document.getElementById('promo-container');
+    container.innerHTML = '<div class="text-center mt-12"><span class="spinner"></span></div>';
+
+    const result = await apiCall('/admin/promo/list', {
+        code: code || null,
+        owner: owner ? parseInt(owner) : null,
+        status: status || null,
+        creator: creator || null
+    });
+
+    if (!result || !result.success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-ticket"></i><p>No promo codes</p></div>';
+        return;
+    }
+
+    const codes = result.data || [];
+    if (codes.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-ticket"></i><p>No promo codes</p></div>';
+        return;
+    }
+
+    container.innerHTML = codes.map(p => {
+        const typeClass = p.reward_type === 'coin' ? 'badge-coin' : 'badge-power';
+        const typeLabel = p.reward_type === 'coin' ? 'COIN' : 'Power';
+        const isCompleted = (p.total_uses || 0) >= (p.max_uses || 0);
+        const statusBadge = isCompleted ? '<span class="badge badge-completed">Completed</span>' : '<span class="badge badge-active">Active</span>';
+        const isAdminCode = !p.owner || p.owner === 0;
+        return `
+            <div class="list-card">
+                <div class="list-card-header">
+                    <div class="list-card-title">
+                        <span class="list-card-name" style="font-family:monospace;letter-spacing:2px;">${p.code}</span>
+                        ${statusBadge}
+                        ${isAdminCode ? '<span class="badge badge-admin">Admin</span>' : '<span class="badge badge-user">User</span>'}
+                    </div>
+                    <div class="flex">
+                        <button class="btn btn-outline btn-sm" onclick="copyText('${p.code}')"><i class="fas fa-copy"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deletePromo('${p.code}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="list-card-body">
+                    <div class="row">
+                        <span class="label">Reward:</span>
+                        <span>${p.reward_amount} <span class="badge ${typeClass}">${typeLabel}</span></span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Uses:</span>
+                        <span>${p.total_uses || 0} / ${p.max_uses || '∞'}</span>
+                    </div>
+                    ${p.owner && p.owner !== 0 ? `<div class="row"><span class="label">Owner:</span> <span>${p.owner}</span></div>` : ''}
+                    ${p.required_channel ? `<div class="row"><span class="label">Required:</span> <a href="https://t.me/${p.required_channel}" target="_blank">@${p.required_channel}</a></div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    toast('Copied!', 'success');
+}
+
+async function deletePromo(code) {
+    showConfirm('Delete Promo', 'Delete promo ' + code + '?', async () => {
+        const result = await apiCall('/admin/promo/delete', { code });
+        if (result && result.success) { toast('Promo deleted', 'success'); loadPromoCodes(); }
+    });
+}
+
+function toggleNotifUser() {
+    document.getElementById('notif-user-group').style.display = this.value === 'single' ? 'block' : 'none';
+}
+
+function updatePreview() {
+    const message = document.getElementById('notif-message').value || 'Your message will appear here';
+    document.getElementById('notif-preview').innerHTML = message;
+}
+
+function addNotifButton() {
+    const name = document.getElementById('notif-btn-name').value.trim();
+    const url = document.getElementById('notif-btn-url').value.trim();
+    if (!name || !url) { toast('Enter button name and URL', 'warning'); return; }
+    notifButtons.push({ text: name, url: url });
+    renderNotifButtons();
+    document.getElementById('notif-btn-name').value = '';
+    document.getElementById('notif-btn-url').value = '';
+}
+
+function renderNotifButtons() {
+    document.getElementById('notif-buttons-list').innerHTML = notifButtons.map((btn, i) =>
+        '<span class="tag-chip">' + btn.text + ' <i class="fas fa-times" onclick="removeNotifButton(' + i + ')"></i></span>'
+    ).join('');
+}
+
+function removeNotifButton(index) {
+    notifButtons.splice(index, 1);
+    renderNotifButtons();
+}
+
+async function sendNotification() {
+    const target = document.getElementById('notif-target').value;
+    const userId = target === 'single' ? parseInt(document.getElementById('notif-user-id').value) : null;
+    const message = document.getElementById('notif-message').value.trim();
+    const photoUrl = document.getElementById('notif-photo').value.trim() || null;
+
+    if (!message) { toast('Enter message', 'warning'); return; }
+    if (target === 'single' && !userId) { toast('Enter user ID', 'warning'); return; }
+
+    const btn = document.getElementById('notif-send-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Sending...';
+
+    const progressDiv = document.getElementById('notif-progress');
+    const progressFill = document.getElementById('notif-progress-fill');
+    const statusText = document.getElementById('notif-status-text');
+    progressDiv.style.display = 'block';
+    progressFill.style.width = '30%';
+    statusText.textContent = 'Sending...';
+
+    const result = await apiCall('/admin/notifications/send', {
+        userId, message, buttons: notifButtons.length > 0 ? notifButtons : null, target, photoUrl
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notification';
+
+    if (result && result.success) {
+        progressFill.style.width = '100%';
+        statusText.textContent = '✅ Sent: ' + result.sent + ' | Failed: ' + result.failed + ' | Blocked: ' + (result.blocked || 0) + ' | Total: ' + result.total;
+        toast('Sent: ' + result.sent + ' | Failed: ' + result.failed, result.failed > 0 ? 'warning' : 'success');
+        setTimeout(() => progressDiv.style.display = 'none', 4000);
+    } else {
+        progressDiv.style.display = 'none';
+    }
+}
+
+async function loadTopUsers() {
+    const type = document.getElementById('topusers-type').value;
+    const limit = parseInt(document.getElementById('topusers-limit').value) || 20;
+    const container = document.getElementById('topusers-container');
+    container.innerHTML = '<div class="text-center"><span class="spinner"></span></div>';
+
+    const result = await apiCall('/admin/topusers/list', { type, limit });
+
+    if (!result || !result.success) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>No users found</p></div>';
+        return;
+    }
+
+    const data = result.data || [];
+    if (data.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>No users found</p></div>';
+        return;
+    }
+
+    container.innerHTML = '<div class="topusers-grid">' + data.map((user, index) => {
+        const rank = index + 1;
+        const medal = rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '#' + rank;
+        return `
+            <div class="topuser-item">
+                <span class="rank">${medal}</span>
+                <div class="user-info">
+                    <img src="${user.photo_url || 'https://slho.shop/i/8067'}" onerror="this.src='https://slho.shop/i/8067'">
+                    <div>
+                        <div class="name">${truncate(user.first_name, 12)}</div>
+                        <div class="id">ID: ${user.user_id}</div>
+                    </div>
+                </div>
+                <div class="value">${formatNumber(user.value)}</div>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.user_id})"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+    }).join('') + '</div>';
+}
+</script>
+</body>
+</html>
