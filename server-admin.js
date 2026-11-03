@@ -5,7 +5,6 @@ const rateLimit = require('express-rate-limit');
 const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
-
 app.set('trust proxy', 1);
 
 const limiter = rateLimit({
@@ -30,10 +29,18 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_KEY
 );
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '12345';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_CHAT_ID = parseInt(process.env.ADMIN_CHAT_ID) || 1891231976;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const COIN_TO_GRAM_RATE = 1000000;
+const TASKS_CHANNEL = process.env.TASKS_CHANNEL || '@GHT_TASKS';
+const MINI_APP_URL = 'https://t.me/GramHtrsbot/app';
+
+const TASK_REWARDS = {
+    main:      { coin: 200, power: 0 },
+    partner:   { coin: 100, power: 0 },
+    community: { coin: 200, power: 100 }
+};
 
 function logError(endpoint, error, extra = {}) {
     console.error(`❌ [${endpoint}] FAILED:`, error?.message || error, JSON.stringify(extra));
@@ -83,8 +90,45 @@ async function notifyAdmin(message) {
     }
 }
 
+async function notifyTasksChannel(task) {
+    try {
+        if (!BOT_TOKEN || !TASKS_CHANNEL) return false;
+        const rewards = TASK_REWARDS[task.category] || { coin: 0, power: 0 };
+        let rewardText = '';
+        if (rewards.coin > 0 && rewards.power > 0) rewardText = `${rewards.power} POWER + ${rewards.coin} COIN`;
+        else if (rewards.coin > 0) rewardText = `${rewards.coin} COIN`;
+        else if (rewards.power > 0) rewardText = `${rewards.power} POWER`;
+        else rewardText = 'N/A';
+
+        const categoryLabel = task.category.charAt(0).toUpperCase() + task.category.slice(1);
+        const message = `⚡ <b>NEW TASK AVAILABLE</b>\n\n📋 <b>Name:</b> ${task.name}\n🎁 <b>Reward:</b> ${rewardText}\nℹ️ <b>Category:</b> ${categoryLabel}\n✅ <b>Available for</b> ${task.total} completion`;
+
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TASKS_CHANNEL,
+                text: message,
+                parse_mode: 'HTML',
+                reply_markup: {
+                    inline_keyboard: [[{ text: '⚡ Complete Now', url: MINI_APP_URL }]]
+                }
+            })
+        });
+        const data = await response.json();
+        if (!data.ok) logError('notifyTasksChannel', new Error(data.description), { taskId: task.id });
+        return data.ok;
+    } catch (error) {
+        logError('notifyTasksChannel', error);
+        return false;
+    }
+}
+
 app.post('/api/admin/login', (req, res) => {
     const { password } = req.body;
+    if (!ADMIN_PASSWORD) {
+        return res.status(500).json({ success: false, error: 'ADMIN_PASSWORD not configured on server' });
+    }
     if (password === ADMIN_PASSWORD) {
         res.json({ success: true });
     } else {
@@ -120,29 +164,21 @@ app.post('/api/admin/users/search', async (req, res) => {
         if (!query || typeof query !== 'string') {
             return res.status(400).json({ success: false, error: 'Query required' });
         }
-
         const trimmed = query.trim();
         if (!trimmed) {
             return res.status(400).json({ success: false, error: 'Query required' });
         }
 
+        const selectFields = 'id, first_name, username, photo_url, coin_balance, power_balance, level, total_referrals, total_tasks_completed, referral_power_earnings, referral_coin_earnings, miner_id, owned_miners, bot_blocked, state, total_mining_starts, created_at';
         let users = [];
 
         if (/^\d+$/.test(trimmed)) {
-            const { data, error } = await supabase
-                .from('users')
-                .select('id, first_name, username, photo_url, coin_balance, power_balance, gram_balance, level, total_referrals, total_tasks_completed, referral_power_earnings, referral_coin_earnings, miner_id, owned_miners, bot_blocked, state, total_mining_starts')
-                .eq('id', parseInt(trimmed))
-                .limit(20);
+            const { data, error } = await supabase.from('users').select(selectFields).eq('id', parseInt(trimmed)).limit(20);
             if (error) throw error;
             users = data || [];
         } else {
             const searchTerm = trimmed.replace('@', '');
-            const { data, error } = await supabase
-                .from('users')
-                .select('id, first_name, username, photo_url, coin_balance, power_balance, gram_balance, level, total_referrals, total_tasks_completed, referral_power_earnings, referral_coin_earnings, miner_id, owned_miners, bot_blocked, state, total_mining_starts')
-                .or(`first_name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
-                .limit(20);
+            const { data, error } = await supabase.from('users').select(selectFields).or(`first_name.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`).limit(20);
             if (error) throw error;
             users = data || [];
         }
@@ -151,7 +187,6 @@ app.post('/api/admin/users/search', async (req, res) => {
             ...u,
             coin_balance: parseFloat((u.coin_balance || 0).toFixed(5)),
             power_balance: u.power_balance || 0,
-            gram_balance: parseFloat((u.gram_balance || 0).toFixed(5)),
             level: u.level || 1,
             total_tasks_completed: u.total_tasks_completed || 0,
             total_mining_starts: u.total_mining_starts || 0,
@@ -306,20 +341,16 @@ app.post('/api/admin/balance/deduct', async (req, res) => {
 
 app.post('/api/admin/tasks/create', async (req, res) => {
     try {
-        const { name, url, category, reward, maxCompletions, owner, verification } = req.body;
+        const { name, url, category, maxCompletions, owner, verification, sendNotify } = req.body;
 
         if (!name || !url) {
-            logError('/api/admin/tasks/create', new Error('Missing name or url'), { body: req.body });
             return res.status(400).json({ success: false, error: 'Missing required fields (name, url)' });
         }
-        if (!validateNumber(reward, 1)) {
-            logError('/api/admin/tasks/create', new Error('Invalid reward'), { reward });
-            return res.status(400).json({ success: false, error: 'Invalid reward amount' });
-        }
-        if (!['main', 'community'].includes(category)) {
-            return res.status(400).json({ success: false, error: 'Category must be main or community' });
+        if (!['main', 'partner', 'community'].includes(category)) {
+            return res.status(400).json({ success: false, error: 'Category must be main, partner or community' });
         }
 
+        const rewardConf = TASK_REWARDS[category] || { coin: 0, power: 0 };
         const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
 
         const taskData = {
@@ -327,21 +358,27 @@ app.post('/api/admin/tasks/create', async (req, res) => {
             name,
             url,
             category: category,
-            reward: parseInt(reward) || 10,
+            reward: rewardConf.power || 100,
             total: maxCompletions || 100,
             total_completed: 0,
             status: 'active',
             owner: owner || 0,
             created_at: Date.now(),
-            verification: verification !== undefined ? verification : true,
+            verification: verification === true,
             notified: false
         };
 
         const { data, error } = await supabase.from('tasks').insert([taskData]).select();
-        if (error) {
-            logError('/api/admin/tasks/create', error, { taskData });
-            throw error;
+        if (error) throw error;
+
+        if (sendNotify === true) {
+            try {
+                await notifyTasksChannel(taskData);
+            } catch (e) {
+                logError('/api/admin/tasks/create notify', e, { taskId });
+            }
         }
+
         res.json({ success: true, data: data[0] });
     } catch (error) {
         logError('/api/admin/tasks/create', error, { body: req.body });
@@ -352,9 +389,7 @@ app.post('/api/admin/tasks/create', async (req, res) => {
 app.post('/api/admin/tasks/list', async (req, res) => {
     try {
         const { taskId, status, owner, category, creator } = req.body;
-
         let query = supabase.from('tasks').select('*');
-
         if (taskId) query = query.eq('id', taskId);
         if (status) query = query.eq('status', status);
         if (owner && validateUserId(owner)) query = query.eq('owner', owner);
@@ -364,7 +399,6 @@ app.post('/api/admin/tasks/list', async (req, res) => {
 
         const { data, error } = await query.order('created_at', { ascending: false }).limit(200);
         if (error) throw error;
-
         res.json({ success: true, data: data || [] });
     } catch (error) {
         logError('/api/admin/tasks/list', error);
@@ -385,9 +419,7 @@ app.post('/api/admin/tasks/update-status', async (req, res) => {
         if (error) throw error;
 
         if (status === 'active' && taskData.owner && validateUserId(taskData.owner)) {
-            await notifyUser(taskData.owner,
-                `<b>✅ Task Approved</b>\n\n<b>Task:</b> ${taskData.name}\n<b>Status:</b> Active`
-            );
+            await notifyUser(taskData.owner, `<b>✅ Task Approved</b>\n\n<b>Task:</b> ${taskData.name}\n<b>Status:</b> Active`);
         }
 
         res.json({ success: true });
@@ -401,10 +433,8 @@ app.post('/api/admin/tasks/delete', async (req, res) => {
     try {
         const { taskId } = req.body;
         if (!taskId) return res.status(400).json({ success: false, error: 'Task ID required' });
-
         await supabase.from('tasks').delete().eq('id', taskId);
         await supabase.from('user_completed_tasks').delete().eq('task_id', taskId);
-
         res.json({ success: true });
     } catch (error) {
         logError('/api/admin/tasks/delete', error, { taskId: req.body?.taskId });
@@ -416,7 +446,6 @@ app.post('/api/admin/withdrawals/list', async (req, res) => {
     try {
         const { status, userId } = req.body;
         let query = supabase.from('withdrawals').select('*').order('timestamp', { ascending: false }).limit(100);
-
         if (status) query = query.eq('status', status);
         if (userId && validateUserId(userId)) query = query.eq('user_id', userId);
 
@@ -448,21 +477,16 @@ app.post('/api/admin/withdrawals/update-status', async (req, res) => {
         if (fetchError) throw fetchError;
 
         const absAmount = Math.abs(txData.amount || 0);
-
         const { error } = await supabase.from('withdrawals').update({ status }).eq('id', transactionId);
         if (error) throw error;
 
         if (status === 'completed') {
-            await notifyUser(txData.user_id,
-                `<b>✅ Withdrawal Completed!</b>\n\n<b>💰 Amount:</b> ${(txData.gram_amount || absAmount / COIN_TO_GRAM_RATE).toFixed(8)} GRAM`
-            );
+            await notifyUser(txData.user_id, `<b>✅ Withdrawal Completed!</b>\n\n<b>💰 Amount:</b> ${(txData.gram_amount || absAmount / COIN_TO_GRAM_RATE).toFixed(8)} GRAM`);
         } else if (status === 'rejected' || status === 'failed') {
             const { data: userData } = await supabase.from('users').select('coin_balance').eq('id', txData.user_id).single();
             if (userData) {
                 await supabase.from('users').update({ coin_balance: (userData.coin_balance || 0) + absAmount }).eq('id', txData.user_id);
-                await notifyUser(txData.user_id,
-                    `<b>❌ Withdrawal ${status.toUpperCase()}</b>\n\n<b>💰 Refunded:</b> ${absAmount.toFixed(2)} COIN`
-                );
+                await notifyUser(txData.user_id, `<b>❌ Withdrawal ${status.toUpperCase()}</b>\n\n<b>💰 Refunded:</b> ${absAmount.toFixed(2)} COIN`);
             }
         }
 
@@ -489,13 +513,9 @@ app.post('/api/admin/withdrawals/delete', async (req, res) => {
 app.post('/api/admin/promo/create', async (req, res) => {
     try {
         const { code, reward, rewardType, maxUses, requiredChannel } = req.body;
-
-        if (!code || !reward) {
-            logError('/api/admin/promo/create', new Error('Missing code or reward'), { body: req.body });
-            return res.status(400).json({ success: false, error: 'Missing required fields' });
-        }
+        if (!code || !reward) return res.status(400).json({ success: false, error: 'Missing required fields' });
         if (!validateNumber(reward, 1)) return res.status(400).json({ success: false, error: 'Invalid reward amount' });
-        if (!['coin', 'power'].includes(rewardType)) return res.status(400).json({ success: false, error: 'Invalid reward type (coin or power)' });
+        if (!['coin', 'power'].includes(rewardType)) return res.status(400).json({ success: false, error: 'Invalid reward type' });
 
         const promoData = {
             code: code.toUpperCase(),
@@ -510,11 +530,7 @@ app.post('/api/admin/promo/create', async (req, res) => {
         };
 
         const { data, error } = await supabase.from('promo_codes').insert([promoData]).select();
-        if (error) {
-            logError('/api/admin/promo/create', error, { promoData });
-            throw error;
-        }
-
+        if (error) throw error;
         res.json({ success: true, data: data[0] });
     } catch (error) {
         logError('/api/admin/promo/create', error, { body: req.body });
@@ -525,9 +541,7 @@ app.post('/api/admin/promo/create', async (req, res) => {
 app.post('/api/admin/promo/list', async (req, res) => {
     try {
         const { code, owner, status, creator } = req.body;
-
         let query = supabase.from('promo_codes').select('*').order('created_at', { ascending: false }).limit(200);
-
         if (code) query = query.ilike('code', `%${code}%`);
         if (owner && validateUserId(owner)) query = query.eq('owner', owner);
         if (status === 'active') query = query.eq('status', 'active');
@@ -537,7 +551,6 @@ app.post('/api/admin/promo/list', async (req, res) => {
 
         const { data, error } = await query;
         if (error) throw error;
-
         res.json({ success: true, data: data || [] });
     } catch (error) {
         logError('/api/admin/promo/list', error);
@@ -558,28 +571,52 @@ app.post('/api/admin/promo/delete', async (req, res) => {
     }
 });
 
+async function sendOneNotification(uid, message, photoUrl, replyMarkup) {
+    try {
+        let response;
+        if (photoUrl) {
+            response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: uid, photo: photoUrl, caption: message, parse_mode: 'HTML', reply_markup: replyMarkup })
+            });
+        } else {
+            const body = { chat_id: uid, text: message, parse_mode: 'HTML' };
+            if (replyMarkup) body.reply_markup = replyMarkup;
+            response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        }
+        const data = await response.json();
+        if (data.ok) return { ok: true };
+        const desc = data.description || '';
+        if (desc.includes('blocked')) return { ok: false, blocked: true };
+        return { ok: false };
+    } catch (e) {
+        return { ok: false };
+    }
+}
+
 app.post('/api/admin/notifications/send', async (req, res) => {
     try {
         const { userId, message, buttons, target, photoUrl } = req.body;
-
         if (!BOT_TOKEN) return res.status(400).json({ success: false, error: 'Bot not configured' });
         if (!message) return res.status(400).json({ success: false, error: 'Message required' });
 
         let users = [];
-
         if (target === 'all') {
             let allUsers = [];
             let page = 0;
             const pageSize = 1000;
             let hasMore = true;
-
             while (hasMore) {
                 const { data, error } = await supabase.from('users').select('id').eq('bot_blocked', false).range(page * pageSize, (page + 1) * pageSize - 1);
                 if (error) throw error;
                 if (data && data.length > 0) { allUsers = allUsers.concat(data); page++; }
                 if (!data || data.length < pageSize) hasMore = false;
             }
-
             users = allUsers.map(u => u.id);
         } else if (target === 'single' && validateUserId(userId)) {
             users = [userId];
@@ -587,59 +624,33 @@ app.post('/api/admin/notifications/send', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid target' });
         }
 
-        if (users.length === 0) return res.json({ success: true, sent: 0, failed: 0, total: 0 });
-
-        let sent = 0;
-        let failed = 0;
-        let blocked = 0;
-        const batchSize = 30;
+        if (users.length === 0) return res.json({ success: true, sent: 0, failed: 0, blocked: 0, total: 0 });
 
         let replyMarkup = null;
         if (buttons && buttons.length > 0) {
-            replyMarkup = { inline_keyboard: [buttons.map(btn => ({ text: btn.text, url: btn.url || undefined }))] };
+            replyMarkup = { inline_keyboard: buttons.map(btn => [{ text: btn.text, url: btn.url || undefined }]) };
         }
+
+        let sent = 0, failed = 0, blocked = 0;
+        const batchSize = 25;
 
         for (let i = 0; i < users.length; i += batchSize) {
             const batch = users.slice(i, i + batchSize);
-            await Promise.all(batch.map(async (uid) => {
-                try {
-                    let response;
-                    if (photoUrl) {
-                        response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                chat_id: uid, photo: photoUrl, caption: message,
-                                parse_mode: 'HTML', reply_markup: replyMarkup
-                            })
-                        });
-                    } else {
-                        const body = { chat_id: uid, text: message, parse_mode: 'HTML' };
-                        if (replyMarkup) body.reply_markup = replyMarkup;
-                        response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(body)
-                        });
-                    }
-                    const data = await response.json();
-                    if (data.ok) sent++;
-                    else {
-                        failed++;
-                        if (data.description && data.description.includes('blocked')) {
-                            blocked++;
-                            await supabase.from('users').update({ bot_blocked: true }).eq('id', uid);
-                        }
-                    }
-                } catch (error) {
+            const results = await Promise.all(batch.map(uid => sendOneNotification(uid, message, photoUrl, replyMarkup)));
+            results.forEach((r, idx) => {
+                if (r.ok) sent++;
+                else {
                     failed++;
+                    if (r.blocked) {
+                        blocked++;
+                        supabase.from('users').update({ bot_blocked: true }).eq('id', batch[idx]).then(() => {}).catch(() => {});
+                    }
                 }
-            }));
+            });
+            if (i + batchSize < users.length) await new Promise(r => setTimeout(r, 1000));
         }
 
-        await notifyAdmin(
-            `<b>📨 Notification Sent</b>\n\n<b>Target:</b> ${target}\n<b>Total:</b> ${users.length}\n<b>Sent:</b> ${sent}\n<b>Failed:</b> ${failed}\n<b>Blocked:</b> ${blocked}`
-        );
+        await notifyAdmin(`<b>📨 Broadcast Sent</b>\n\n<b>Target:</b> ${target}\n<b>Total:</b> ${users.length}\n<b>Sent:</b> ${sent}\n<b>Failed:</b> ${failed}\n<b>Blocked:</b> ${blocked}`);
 
         res.json({ success: true, sent, failed, blocked, total: users.length });
     } catch (error) {
@@ -651,22 +662,21 @@ app.post('/api/admin/notifications/send', async (req, res) => {
 app.post('/api/admin/topusers/list', async (req, res) => {
     try {
         const { type, limit } = req.body;
-        const limitNum = Math.min(parseInt(limit) || 20, 100);
-        const column = type === 'power' ? 'power_balance' : 'coin_balance';
+        const limitNum = Math.min(parseInt(limit) || 10, 100);
+        let column;
+        if (type === 'power') column = 'power_balance';
+        else if (type === 'referrals') column = 'total_referrals';
+        else column = 'coin_balance';
 
-        const { data, error } = await supabase
-            .from('users')
-            .select('id, first_name, photo_url, ' + column)
-            .order(column, { ascending: false })
-            .limit(limitNum);
-
+        const selectFields = 'id, first_name, photo_url, ' + column;
+        const { data, error } = await supabase.from('users').select(selectFields).order(column, { ascending: false }).limit(limitNum);
         if (error) throw error;
 
         const formattedData = (data || []).map(u => ({
             user_id: u.id,
             first_name: u.first_name || 'User',
             photo_url: u.photo_url || 'https://slho.shop/i/8067',
-            value: type === 'power' ? (u.power_balance || 0) : parseFloat((u.coin_balance || 0).toFixed(5))
+            value: type === 'coin' ? parseFloat((u.coin_balance || 0).toFixed(5)) : (u[column] || 0)
         }));
 
         res.json({ success: true, data: formattedData });
