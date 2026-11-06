@@ -101,7 +101,7 @@ async function notifyTasksChannel(task) {
         else rewardText = 'N/A';
 
         const categoryLabel = task.category.charAt(0).toUpperCase() + task.category.slice(1);
-        const message = `⚡ <b>NEW TASK AVAILABLE</b>\n\n📋 <b>Name:</b> ${task.name}\n🎁 <b>Reward:</b> ${rewardText}\nℹ️ <b>Category:</b> ${categoryLabel}\n✅ <b>Available for</b> ${task.total} completion`;
+        const message = `⚡ <b>NEW TASK AVAILABLE</b>\n\n📋 <b>Name:</b> ${task.name}\nℹ️ <b>Category:</b> ${categoryLabel}\n✅ <b>Available for ${task.total} completion</b> `;
 
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
