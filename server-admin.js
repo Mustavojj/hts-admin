@@ -32,14 +32,14 @@ const supabase = createClient(
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_CHAT_ID = parseInt(process.env.ADMIN_CHAT_ID) || 1891231976;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const COIN_TO_GRAM_RATE = 1000000;
 const TASKS_CHANNEL = process.env.TASKS_CHANNEL || '@GHT_TASKS';
 const MINI_APP_URL = 'https://t.me/GramHtrsbot/app';
+const APP_LOGO = 'https://slho.shop/i/8281';
 
 const TASK_REWARDS = {
-    main:      { coin: 200, power: 0 },
-    partner:   { coin: 100, power: 0 },
-    community: { coin: 200, power: 100 }
+    main:      { gram: 0.002 },
+    partner:   { gram: 0.001 },
+    community: { gram: 0.002 }
 };
 
 function logError(endpoint, error, extra = {}) {
@@ -93,15 +93,11 @@ async function notifyAdmin(message) {
 async function notifyTasksChannel(task) {
     try {
         if (!BOT_TOKEN || !TASKS_CHANNEL) return false;
-        const rewards = TASK_REWARDS[task.category] || { coin: 0, power: 0 };
-        let rewardText = '';
-        if (rewards.coin > 0 && rewards.power > 0) rewardText = `${rewards.power} POWER + ${rewards.coin} COIN`;
-        else if (rewards.coin > 0) rewardText = `${rewards.coin} COIN`;
-        else if (rewards.power > 0) rewardText = `${rewards.power} POWER`;
-        else rewardText = 'N/A';
-
+        const rewards = TASK_REWARDS[task.category] || { gram: 0 };
+        const rewardText = rewards.gram > 0 ? `${rewards.gram.toFixed(8)} GRAM` : 'N/A';
         const categoryLabel = task.category.charAt(0).toUpperCase() + task.category.slice(1);
-        const message = `⚡ <b>NEW TASK AVAILABLE</b>\n\n📋 <b>Name:</b> ${task.name}\nℹ️ <b>Category:</b> ${categoryLabel}\n✅ <b>Available for ${task.total} completion</b> `;
+
+        const message = `⚡ <b>NEW TASK AVAILABLE</b>\n\n📋 <b>Name:</b> ${task.name}\nℹ️ <b>Category:</b> ${categoryLabel}\n💰 <b>Reward:</b> ${rewardText}\n✅ <b>Available for ${task.total} completion</b>`;
 
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
@@ -139,17 +135,25 @@ app.post('/api/admin/login', (req, res) => {
 app.post('/api/admin/stats', async (req, res) => {
     try {
         const { count: totalUsers } = await supabase.from('users').select('id', { count: 'exact', head: true });
-        const { count: totalWithdrawals } = await supabase.from('withdrawals').select('id', { count: 'exact', head: true });
-        const { count: totalTasks } = await supabase.from('tasks').select('id', { count: 'exact', head: true });
-        const { count: totalCodes } = await supabase.from('promo_codes').select('code', { count: 'exact', head: true });
+
+        const { data: usersBalances } = await supabase.from('users').select('mining_balance, withdrawable_balance').limit(100000);
+        let totalMining = 0, totalWithdrawable = 0;
+        (usersBalances || []).forEach(u => {
+            totalMining += parseFloat(u.mining_balance || 0);
+            totalWithdrawable += parseFloat(u.withdrawable_balance || 0);
+        });
+
+        const { data: completedWds } = await supabase.from('withdrawals').select('gram_amount').eq('status', 'completed').limit(100000);
+        let totalWithdrawn = 0;
+        (completedWds || []).forEach(w => { totalWithdrawn += parseFloat(w.gram_amount || 0); });
 
         res.json({
             success: true,
             data: {
                 totalUsers: totalUsers || 0,
-                totalWithdrawals: totalWithdrawals || 0,
-                totalTasks: totalTasks || 0,
-                totalCodes: totalCodes || 0
+                totalMining: totalMining,
+                totalWithdrawable: totalWithdrawable,
+                totalWithdrawn: totalWithdrawn
             }
         });
     } catch (error) {
@@ -169,7 +173,7 @@ app.post('/api/admin/users/search', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Query required' });
         }
 
-        const selectFields = 'id, first_name, username, photo_url, coin_balance, power_balance, level, total_referrals, total_tasks_completed, referral_power_earnings, referral_coin_earnings, miner_id, owned_miners, bot_blocked, state, total_mining_starts, created_at';
+        const selectFields = 'id, first_name, username, photo_url, mining_balance, withdrawable_balance, referral_gram_earnings, pending_gram_reward, total_referrals, verified_referrals, total_tasks_completed, total_mining_starts, welcome_bonus_claimed, bot_blocked, state, created_at';
         let users = [];
 
         if (/^\d+$/.test(trimmed)) {
@@ -185,15 +189,15 @@ app.post('/api/admin/users/search', async (req, res) => {
 
         users = users.map(u => ({
             ...u,
-            coin_balance: parseFloat((u.coin_balance || 0).toFixed(5)),
-            power_balance: u.power_balance || 0,
-            level: u.level || 1,
+            mining_balance: parseFloat((u.mining_balance || 0).toFixed(8)),
+            withdrawable_balance: parseFloat((u.withdrawable_balance || 0).toFixed(8)),
+            referral_gram_earnings: parseFloat((u.referral_gram_earnings || 0).toFixed(8)),
+            pending_gram_reward: parseFloat((u.pending_gram_reward || 0).toFixed(8)),
+            total_referrals: u.total_referrals || 0,
+            verified_referrals: u.verified_referrals || 0,
             total_tasks_completed: u.total_tasks_completed || 0,
             total_mining_starts: u.total_mining_starts || 0,
-            referral_power_earnings: u.referral_power_earnings || 0,
-            referral_coin_earnings: u.referral_coin_earnings || 0,
-            owned_miners: u.owned_miners || [],
-            miner_id: u.miner_id || null,
+            welcome_bonus_claimed: u.welcome_bonus_claimed || false,
             bot_blocked: u.bot_blocked || false
         }));
 
@@ -239,6 +243,8 @@ app.post('/api/admin/users/delete', async (req, res) => {
         await supabase.from('used_promo_codes').delete().eq('user_id', userId);
         await supabase.from('withdrawals').delete().eq('user_id', userId);
         await supabase.from('confirmed_memos').delete().eq('user_id', userId);
+        await supabase.from('device_locks').delete().eq('user_id', userId);
+        await supabase.from('ip_locks').delete().eq('user_id', userId);
         await supabase.from('tasks').delete().eq('owner', userId);
         await supabase.from('promo_codes').delete().eq('owner', userId);
         const { error } = await supabase.from('users').delete().eq('id', userId);
@@ -255,6 +261,8 @@ app.post('/api/admin/users/reset-device', async (req, res) => {
     try {
         const { userId } = req.body;
         if (!validateUserId(userId)) return res.status(400).json({ success: false, error: 'Invalid user ID' });
+        await supabase.from('device_locks').delete().eq('user_id', userId);
+        await supabase.from('ip_locks').delete().eq('user_id', userId);
         const { error } = await supabase.from('users').update({ visitor_ids: [] }).eq('id', userId);
         if (error) throw error;
         res.json({ success: true });
@@ -269,16 +277,7 @@ app.post('/api/admin/users/reset-daily', async (req, res) => {
         const { userId } = req.body;
         if (!validateUserId(userId)) return res.status(400).json({ success: false, error: 'Invalid user ID' });
         const { error } = await supabase.from('users').update({
-            ad1_daily_count: 0,
-            ad2_daily_count: 0,
-            ad3_daily_count: 0,
-            ad4_daily_count: 0,
-            daily_tasks_completed: 0,
-            daily_referrals: 0,
             daily_mining_starts: 0,
-            ad_daily_date: '',
-            last_task_date: '',
-            last_referral_date: '',
             last_mining_date: ''
         }).eq('id', userId);
         if (error) throw error;
@@ -293,16 +292,14 @@ app.post('/api/admin/balance/add', async (req, res) => {
     try {
         const { userId, amount, type } = req.body;
         if (!validateUserId(userId)) return res.status(400).json({ success: false, error: 'Invalid user ID' });
-        if (!validateNumber(amount, 0.000001)) return res.status(400).json({ success: false, error: 'Invalid amount' });
-        if (!['coin_balance', 'power_balance'].includes(type)) return res.status(400).json({ success: false, error: 'Invalid balance type' });
+        if (!validateNumber(amount, 0.00000001)) return res.status(400).json({ success: false, error: 'Invalid amount' });
+        if (!['mining_balance', 'withdrawable_balance'].includes(type)) return res.status(400).json({ success: false, error: 'Invalid balance type' });
 
         const { data: userData, error: fetchError } = await supabase.from('users').select(type).eq('id', userId).single();
         if (fetchError || !userData) return res.status(404).json({ success: false, error: 'User not found' });
 
-        const currentBalance = userData[type] || 0;
-        const newBalance = type === 'coin_balance'
-            ? parseFloat((currentBalance + amount).toFixed(5))
-            : currentBalance + amount;
+        const currentBalance = parseFloat(userData[type] || 0);
+        const newBalance = parseFloat((currentBalance + amount).toFixed(8));
 
         const { error } = await supabase.from('users').update({ [type]: newBalance }).eq('id', userId);
         if (error) throw error;
@@ -317,18 +314,16 @@ app.post('/api/admin/balance/deduct', async (req, res) => {
     try {
         const { userId, amount, type } = req.body;
         if (!validateUserId(userId)) return res.status(400).json({ success: false, error: 'Invalid user ID' });
-        if (!validateNumber(amount, 0.000001)) return res.status(400).json({ success: false, error: 'Invalid amount' });
-        if (!['coin_balance', 'power_balance'].includes(type)) return res.status(400).json({ success: false, error: 'Invalid balance type' });
+        if (!validateNumber(amount, 0.00000001)) return res.status(400).json({ success: false, error: 'Invalid amount' });
+        if (!['mining_balance', 'withdrawable_balance'].includes(type)) return res.status(400).json({ success: false, error: 'Invalid balance type' });
 
         const { data: userData, error: fetchError } = await supabase.from('users').select(type).eq('id', userId).single();
         if (fetchError || !userData) return res.status(404).json({ success: false, error: 'User not found' });
 
-        const currentBalance = userData[type] || 0;
+        const currentBalance = parseFloat(userData[type] || 0);
         if (currentBalance < amount) return res.status(400).json({ success: false, error: 'Insufficient balance' });
 
-        const newBalance = type === 'coin_balance'
-            ? parseFloat((currentBalance - amount).toFixed(5))
-            : currentBalance - amount;
+        const newBalance = parseFloat((currentBalance - amount).toFixed(8));
 
         const { error } = await supabase.from('users').update({ [type]: newBalance }).eq('id', userId);
         if (error) throw error;
@@ -350,7 +345,7 @@ app.post('/api/admin/tasks/create', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Category must be main, partner or community' });
         }
 
-        const rewardConf = TASK_REWARDS[category] || { coin: 0, power: 0 };
+        const rewardConf = TASK_REWARDS[category] || { gram: 0 };
         const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
 
         const taskData = {
@@ -358,7 +353,7 @@ app.post('/api/admin/tasks/create', async (req, res) => {
             name,
             url,
             category: category,
-            reward: rewardConf.power || 100,
+            reward: rewardConf.gram,
             total: maxCompletions || 100,
             total_completed: 0,
             status: 'active',
@@ -454,8 +449,8 @@ app.post('/api/admin/withdrawals/list', async (req, res) => {
 
         if (data) {
             data.forEach(w => {
-                w.amount = Math.abs(parseFloat((w.amount || 0).toFixed(5)));
-                w.gram_amount = parseFloat((w.gram_amount || (w.amount / COIN_TO_GRAM_RATE)).toFixed(8));
+                w.amount = Math.abs(parseFloat((w.amount || 0).toFixed(8)));
+                w.gram_amount = parseFloat((w.gram_amount || 0).toFixed(8));
                 w.wallet_masked = w.wallet ? w.wallet.substring(0, 6) + '***' + w.wallet.substring(w.wallet.length - 6) : 'N/A';
             });
         }
@@ -476,17 +471,17 @@ app.post('/api/admin/withdrawals/update-status', async (req, res) => {
         const { data: txData, error: fetchError } = await supabase.from('withdrawals').select('user_id, amount, gram_amount').eq('id', transactionId).single();
         if (fetchError) throw fetchError;
 
-        const absAmount = Math.abs(txData.amount || 0);
         const { error } = await supabase.from('withdrawals').update({ status }).eq('id', transactionId);
         if (error) throw error;
 
         if (status === 'completed') {
-            await notifyUser(txData.user_id, `<b>✅ Withdrawal Completed!</b>\n\n<b>💰 Amount:</b> ${(txData.gram_amount || absAmount / COIN_TO_GRAM_RATE).toFixed(8)} GRAM`);
+            await notifyUser(txData.user_id, `<b>✅ Withdrawal Completed!</b>\n\n<b>💰 Amount:</b> ${parseFloat(txData.gram_amount || 0).toFixed(8)} GRAM`);
         } else if (status === 'rejected' || status === 'failed') {
-            const { data: userData } = await supabase.from('users').select('coin_balance').eq('id', txData.user_id).single();
+            const { data: userData } = await supabase.from('users').select('withdrawable_balance').eq('id', txData.user_id).single();
             if (userData) {
-                await supabase.from('users').update({ coin_balance: (userData.coin_balance || 0) + absAmount }).eq('id', txData.user_id);
-                await notifyUser(txData.user_id, `<b>❌ Withdrawal ${status.toUpperCase()}</b>\n\n<b>💰 Refunded:</b> ${absAmount.toFixed(2)} COIN`);
+                const refund = parseFloat(txData.gram_amount || txData.amount || 0);
+                await supabase.from('users').update({ withdrawable_balance: (parseFloat(userData.withdrawable_balance || 0) + refund) }).eq('id', txData.user_id);
+                await notifyUser(txData.user_id, `<b>❌ Withdrawal ${status.toUpperCase()}</b>\n\n<b>💰 Refunded:</b> ${refund.toFixed(8)} GRAM`);
             }
         }
 
@@ -512,15 +507,14 @@ app.post('/api/admin/withdrawals/delete', async (req, res) => {
 
 app.post('/api/admin/promo/create', async (req, res) => {
     try {
-        const { code, reward, rewardType, maxUses, requiredChannel } = req.body;
+        const { code, reward, maxUses, requiredChannel } = req.body;
         if (!code || !reward) return res.status(400).json({ success: false, error: 'Missing required fields' });
-        if (!validateNumber(reward, 1)) return res.status(400).json({ success: false, error: 'Invalid reward amount' });
-        if (!['coin', 'power'].includes(rewardType)) return res.status(400).json({ success: false, error: 'Invalid reward type' });
+        if (!validateNumber(reward, 0.00000001)) return res.status(400).json({ success: false, error: 'Invalid reward amount' });
 
         const promoData = {
             code: code.toUpperCase(),
-            reward_amount: parseInt(reward),
-            reward_type: rewardType,
+            reward_amount: parseFloat(reward),
+            reward_type: 'gram',
             max_uses: maxUses || 999999,
             total_uses: 0,
             owner: 0,
@@ -632,7 +626,7 @@ app.post('/api/admin/notifications/send', async (req, res) => {
         }
 
         let sent = 0, failed = 0, blocked = 0;
-        const batchSize = 25;
+        const batchSize = 50;
 
         for (let i = 0; i < users.length; i += batchSize) {
             const batch = users.slice(i, i + batchSize);
@@ -647,7 +641,7 @@ app.post('/api/admin/notifications/send', async (req, res) => {
                     }
                 }
             });
-            if (i + batchSize < users.length) await new Promise(r => setTimeout(r, 1000));
+            if (i + batchSize < users.length) await new Promise(r => setTimeout(r, 500));
         }
 
         await notifyAdmin(`<b>📨 Broadcast Sent</b>\n\n<b>Target:</b> ${target}\n<b>Total:</b> ${users.length}\n<b>Sent:</b> ${sent}\n<b>Failed:</b> ${failed}\n<b>Blocked:</b> ${blocked}`);
@@ -664,9 +658,9 @@ app.post('/api/admin/topusers/list', async (req, res) => {
         const { type, limit } = req.body;
         const limitNum = Math.min(parseInt(limit) || 10, 100);
         let column;
-        if (type === 'power') column = 'power_balance';
+        if (type === 'withdrawable') column = 'withdrawable_balance';
         else if (type === 'referrals') column = 'total_referrals';
-        else column = 'coin_balance';
+        else column = 'mining_balance';
 
         const selectFields = 'id, first_name, photo_url, ' + column;
         const { data, error } = await supabase.from('users').select(selectFields).order(column, { ascending: false }).limit(limitNum);
@@ -675,8 +669,8 @@ app.post('/api/admin/topusers/list', async (req, res) => {
         const formattedData = (data || []).map(u => ({
             user_id: u.id,
             first_name: u.first_name || 'User',
-            photo_url: u.photo_url || 'https://slho.shop/i/8067',
-            value: type === 'coin' ? parseFloat((u.coin_balance || 0).toFixed(5)) : (u[column] || 0)
+            photo_url: u.photo_url || APP_LOGO,
+            value: parseFloat((u[column] || 0).toFixed(8))
         }));
 
         res.json({ success: true, data: formattedData });
