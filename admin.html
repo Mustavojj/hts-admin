@@ -8,39 +8,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         :root {
-            --primary: #4A90D9;
-            --primary-dark: #2563EB;
-            --primary-light: #60A5FA;
-            --primary-glow: rgba(74, 144, 217, 0.4);
-            --bg: #0a0a0f;
-            --bg-secondary: #0f1423;
-            --bg-elevated: #141c30;
-            --glass-bg: rgba(74, 144, 217, 0.05);
-            --glass-border: rgba(74, 144, 217, 0.15);
-            --text: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.65);
-            --text-muted: rgba(255, 255, 255, 0.35);
-            --success: #2ecc71;
-            --error: #e74c3c;
-            --warning: #f39c12;
-            --info: #3498db;
-            --card-radius: 20px;
-            --card-radius-sm: 14px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #0A0A0F;
+            --bg-2: #101018;
+            --surface: #14141F;
+            --surface-2: #1B1B28;
+            --primary: #F5B301;
+            --primary-2: #FF8A00;
+            --primary-soft: #FFD966;
+            --text: #FFFFFF;
+            --text-secondary: #9CA3AF;
+            --text-muted: #6B7280;
+            --success: #22C55E;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --border: rgba(245, 179, 1, 0.12);
+            --border-soft: rgba(255, 255, 255, 0.06);
+            --radius: 18px;
+            --radius-sm: 13px;
+            --shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+            --grad-primary: linear-gradient(135deg, #F5B301, #FF8A00);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
+            background: radial-gradient(ellipse at top, #14141F 0%, #0A0A0F 60%);
             color: var(--text);
             min-height: 100vh;
             padding: 16px 16px 110px;
-            background-image:
-                radial-gradient(ellipse at 20% 0%, rgba(74, 144, 217, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
         }
 
         .login-screen {
@@ -55,15 +52,14 @@
         }
 
         .login-container {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             padding: 40px 32px;
             width: 100%;
             max-width: 380px;
             text-align: center;
             box-shadow: var(--shadow);
-            animation: fadeIn 0.5s ease;
         }
 
         .login-logo {
@@ -73,23 +69,15 @@
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 50px var(--primary-glow);
-            animation: pulse 2s infinite;
+            box-shadow: 0 0 40px rgba(245, 179, 1, 0.4);
         }
 
         .login-logo img { width: 100%; height: 100%; object-fit: cover; }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 40px var(--primary-glow); }
-            50% { box-shadow: 0 0 70px var(--primary-glow); }
-        }
-
         .login-container h1 {
             font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            color: var(--primary);
             margin-bottom: 6px;
         }
 
@@ -99,36 +87,36 @@
         .login-input {
             width: 100%;
             padding: 14px 18px;
-            background: var(--bg);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
             border-radius: 12px;
             color: var(--text);
             font-size: 16px;
-            transition: var(--transition);
             text-align: center;
             letter-spacing: 2px;
+            font-family: inherit;
         }
 
-        .login-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        .login-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245, 179, 1, 0.15); }
 
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--grad-primary);
             border: none;
             border-radius: 12px;
-            color: #fff;
+            color: #0A0A0F;
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 4px 20px rgba(245, 179, 1, 0.3);
         }
 
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .login-btn:active { transform: scale(0.98); }
         .login-error { color: var(--error); font-size: 13px; min-height: 20px; }
 
         .container { max-width: 1440px; margin: 0 auto; }
@@ -138,7 +126,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 16px 0 20px;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--border-soft);
             margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 12px;
@@ -152,24 +140,19 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 25px var(--primary-glow);
+            box-shadow: 0 0 20px rgba(245, 179, 1, 0.4);
         }
 
         .header h1 {
             font-size: 22px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-weight: 900;
+            color: var(--primary);
         }
 
         .stats-wrapper {
-            background: linear-gradient(135deg, rgba(74, 144, 217, 0.08), rgba(37, 99, 235, 0.04));
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
             padding: 18px;
             margin-bottom: 20px;
         }
@@ -182,37 +165,20 @@
         }
 
         .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius-sm);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
             padding: 14px 10px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
             text-align: center;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .stat-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(74, 144, 217, 0.15); }
-        .stat-card:hover::before { opacity: 1; }
+        .stat-card:hover { border-color: var(--primary); }
 
         .stat-card .value {
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--primary-soft);
+            font-family: 'Courier New', monospace;
             letter-spacing: -0.5px;
         }
 
@@ -226,7 +192,7 @@
             gap: 4px;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .stat-card .label i { color: var(--primary); font-size: 9px; }
@@ -234,52 +200,40 @@
         .refresh-stats-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--grad-primary);
             border: none;
             border-radius: 40px;
-            color: #fff;
+            color: #0A0A0F;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            box-shadow: 0 4px 20px var(--primary-glow);
         }
 
-        .refresh-stats-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .refresh-stats-btn:active { transform: scale(0.98); }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.35s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .tab-content.active { display: block; }
 
         .panel-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
             padding: 20px;
             margin-bottom: 16px;
-            backdrop-filter: blur(12px);
-            transition: var(--transition);
         }
-
-        .panel-card:hover { border-color: rgba(74, 144, 217, 0.25); }
 
         .card-title {
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--primary-light);
-            letter-spacing: 0.3px;
+            color: var(--primary);
         }
 
         .card-title i {
@@ -289,7 +243,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(74, 144, 217, 0.12);
+            background: rgba(245, 179, 1, 0.12);
             border-radius: 8px;
             font-size: 13px;
         }
@@ -299,27 +253,25 @@
         .form-group label {
             display: block;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-secondary);
             margin-bottom: 6px;
-            letter-spacing: 0.3px;
         }
 
         .form-control {
             width: 100%;
             padding: 12px 16px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
             border-radius: 10px;
             color: var(--text);
             font-size: 14px;
-            transition: var(--transition);
             font-family: inherit;
         }
 
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1); }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245, 179, 1, 0.15); }
         .form-control::placeholder { color: var(--text-muted); }
-        select.form-control { appearance: none; cursor: pointer; }
+        select.form-control { cursor: pointer; }
         textarea.form-control { resize: vertical; min-height: 90px; }
 
         .btn {
@@ -327,28 +279,23 @@
             border: none;
             border-radius: 40px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            font-family: inherit;
         }
 
-        .btn:hover { transform: translateY(-2px); }
-        .btn:active { transform: translateY(0); }
-
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 15px rgba(74, 144, 217, 0.25); }
-        .btn-primary:hover { box-shadow: 0 8px 30px var(--primary-glow); }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--grad-primary); color: #0A0A0F; box-shadow: 0 4px 15px rgba(245, 179, 1, 0.25); }
         .btn-success { background: var(--success); color: #fff; }
         .btn-danger { background: var(--error); color: #fff; }
         .btn-warning { background: var(--warning); color: #fff; }
         .btn-info { background: var(--info); color: #fff; }
-
-        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); }
-        .btn-outline:hover { background: var(--glass-border); color: var(--text); border-color: var(--primary); }
-
+        .btn-outline { background: transparent; border: 1px solid var(--border-soft); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--text); }
         .btn-sm { padding: 6px 14px; font-size: 11px; }
         .btn-icon { width: 34px; height: 34px; padding: 0; border-radius: 10px; }
 
@@ -362,30 +309,27 @@
             padding: 3px 12px;
             border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            font-weight: 700;
         }
 
-        .badge-active { background: rgba(46, 204, 113, 0.15); color: var(--success); }
-        .badge-pending { background: rgba(243, 156, 18, 0.15); color: var(--warning); }
-        .badge-completed { background: rgba(52, 152, 219, 0.15); color: var(--info); }
-        .badge-rejected { background: rgba(231, 76, 60, 0.15); color: var(--error); }
-        .badge-coin { background: rgba(74, 144, 217, 0.15); color: var(--primary-light); }
-        .badge-power { background: rgba(243, 156, 18, 0.15); color: var(--warning); }
-        .badge-admin { background: rgba(52, 152, 219, 0.15); color: var(--info); }
-        .badge-user { background: rgba(149, 165, 166, 0.15); color: #95a5a6; }
-        .badge-main { background: rgba(74, 144, 217, 0.15); color: var(--primary-light); }
-        .badge-community { background: rgba(155, 89, 182, 0.15); color: #a569bd; }
-        .badge-partner { background: rgba(46, 204, 113, 0.15); color: var(--success); }
-        .badge-blocked { background: rgba(231, 76, 60, 0.15); color: var(--error); }
+        .badge-active { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge-completed { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+        .badge-gram { background: rgba(245, 179, 1, 0.15); color: var(--primary-soft); }
+        .badge-admin { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .badge-user { background: rgba(107, 114, 128, 0.15); color: var(--text-secondary); }
+        .badge-main { background: rgba(245, 179, 1, 0.15); color: var(--primary-soft); }
+        .badge-community { background: rgba(168, 85, 247, 0.15); color: #C084FC; }
+        .badge-partner { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .badge-blocked { background: rgba(239, 68, 68, 0.15); color: var(--error); }
 
         .user-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
             padding: 24px;
             margin-top: 16px;
-            animation: fadeIn 0.35s ease;
         }
 
         .user-card-header {
@@ -405,10 +349,9 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 20px var(--primary-glow);
         }
 
-        .user-card-name { font-size: 17px; font-weight: 700; color: var(--primary-light); }
+        .user-card-name { font-size: 17px; font-weight: 800; color: var(--text); }
         .user-card-id { font-size: 12px; color: var(--text-muted); font-family: monospace; }
 
         .user-card-grid {
@@ -419,17 +362,14 @@
         }
 
         .user-card-item {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius-sm);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
             padding: 14px;
             text-align: center;
-            transition: var(--transition);
         }
 
         .user-card-item.full-width { grid-column: 1 / -1; }
-        .user-card-item:hover { border-color: rgba(74, 144, 217, 0.3); }
-
         .user-card-item .label {
             display: block;
             font-size: 10px;
@@ -437,13 +377,14 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 4px;
+            font-weight: 700;
         }
 
         .user-card-item .value {
             display: block;
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--primary-light);
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--primary-soft);
             font-family: 'Courier New', monospace;
         }
 
@@ -452,41 +393,41 @@
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 10px;
             padding-top: 20px;
-            border-top: 1px solid var(--glass-border);
+            border-top: 1px solid var(--border-soft);
         }
 
         .user-action-btn {
             padding: 12px 14px;
             border: none;
-            border-radius: var(--card-radius-sm);
+            border-radius: var(--radius-sm);
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 6px;
             color: #fff;
+            font-family: inherit;
         }
 
+        .user-action-btn:active { transform: scale(0.96); }
         .user-action-btn i { font-size: 16px; }
-        .user-action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); }
 
-        .action-add-coin { background: linear-gradient(135deg, #4A90D9, #2563EB); }
-        .action-deduct-coin { background: linear-gradient(135deg, #2563EB, #1e40af); }
-        .action-add-power { background: linear-gradient(135deg, #f39c12, #d68910); }
-        .action-deduct-power { background: linear-gradient(135deg, #d68910, #935f07); }
-        .action-ban { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .action-unban { background: linear-gradient(135deg, #2ecc71, #27ae60); }
-        .action-delete { background: linear-gradient(135deg, #8e44ad, #6c3483); }
-        .action-reset { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .action-add-mining { background: var(--grad-primary); color: #0A0A0F; }
+        .action-deduct-mining { background: linear-gradient(135deg, #FF8A00, #C96A00); color: #fff; }
+        .action-add-withdrawable { background: linear-gradient(135deg, #22C55E, #16A34A); }
+        .action-deduct-withdrawable { background: linear-gradient(135deg, #16A34A, #0F7A33); }
+        .action-ban { background: var(--error); }
+        .action-unban { background: var(--success); }
+        .action-delete { background: linear-gradient(135deg, #A855F7, #6D28D9); }
+        .action-reset { background: var(--info); }
 
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(10, 10, 15, 0.92);
+            backdrop-filter: blur(12px);
             display: none;
             align-items: center;
             justify-content: center;
@@ -494,49 +435,44 @@
             padding: 20px;
         }
 
-        .modal.active { display: flex; animation: fadeIn 0.25s ease; }
+        .modal.active { display: flex; }
 
         .modal-content {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             padding: 28px;
             width: 100%;
             max-width: 420px;
             box-shadow: var(--shadow);
         }
 
-        .modal-title { font-size: 18px; font-weight: 700; color: var(--primary-light); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .modal-title { font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .modal-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .modal-actions .btn { flex: 1; }
 
         .list-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
-            transition: var(--transition);
-            animation: fadeIn 0.3s ease;
         }
-
-        .list-card:hover { border-color: rgba(74, 144, 217, 0.3); transform: translateY(-2px); }
 
         .list-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
         .list-card-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .list-card-name { font-size: 15px; font-weight: 700; color: var(--primary-light); }
-        .list-card-id { font-size: 10px; color: var(--text-muted); font-family: monospace; background: var(--glass-bg); padding: 2px 8px; border-radius: 10px; }
+        .list-card-name { font-size: 15px; font-weight: 800; color: var(--primary-soft); }
+        .list-card-id { font-size: 10px; color: var(--text-muted); font-family: monospace; background: var(--bg-2); padding: 2px 8px; border-radius: 10px; }
         .list-card-body { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-secondary); }
-        .list-card-body a { color: var(--primary-light); text-decoration: none; word-break: break-all; }
-        .list-card-body a:hover { text-decoration: underline; }
+        .list-card-body a { color: var(--primary); text-decoration: none; word-break: break-all; }
         .list-card-body .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .list-card-body .label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .list-card-body .label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 700; }
         .list-card-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
 
         .progress-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-        .progress-bar { flex: 1; height: 5px; background: var(--glass-border); border-radius: 5px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: 5px; transition: width 0.6s ease; }
+        .progress-bar { flex: 1; height: 5px; background: rgba(245, 179, 1, 0.1); border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--grad-primary); border-radius: 5px; }
         .progress-text { font-size: 11px; color: var(--text-secondary); font-family: 'Courier New', monospace; flex-shrink: 0; }
 
         .toast-container {
@@ -554,15 +490,13 @@
         }
 
         .toast {
-            background: var(--bg-elevated);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius-sm);
+            background: var(--surface-2);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
             padding: 14px 20px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-            animation: slideDown 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
             font-size: 13px;
-            font-weight: 500;
-            backdrop-filter: blur(12px);
+            font-weight: 600;
             max-width: 100%;
             word-wrap: break-word;
             pointer-events: auto;
@@ -587,11 +521,6 @@
         .toast.info { border-left: 4px solid var(--info); }
         .toast.info::before { content: '\f05a'; color: var(--info); }
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
         .empty-state i { font-size: 40px; opacity: 0.3; margin-bottom: 12px; display: block; }
         .empty-state p { font-size: 13px; }
@@ -600,53 +529,49 @@
 
         .topuser-item {
             display: grid;
-            grid-template-columns: 50px 1fr 100px 50px;
+            grid-template-columns: 50px 1fr 110px 50px;
             gap: 10px;
             padding: 12px 16px;
-            background: var(--bg-secondary);
-            border-radius: var(--card-radius-sm);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-2);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-soft);
             align-items: center;
-            transition: var(--transition);
         }
 
-        .topuser-item:hover { border-color: var(--primary); transform: translateX(4px); }
-        .topuser-item .rank { font-weight: 800; color: var(--primary-light); font-size: 14px; }
+        .topuser-item .rank { font-weight: 900; color: var(--primary); font-size: 14px; }
         .topuser-item .user-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
         .topuser-item .user-info img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--primary); flex-shrink: 0; }
-        .topuser-item .user-info .name { font-weight: 600; font-size: 13px; }
+        .topuser-item .user-info .name { font-weight: 700; font-size: 13px; }
         .topuser-item .user-info .id { font-size: 10px; color: var(--text-muted); font-family: monospace; }
-        .topuser-item .value { text-align: right; font-weight: 700; color: var(--primary-light); font-size: 14px; font-family: 'Courier New', monospace; }
+        .topuser-item .value { text-align: right; font-weight: 900; color: var(--primary-soft); font-size: 13px; font-family: 'Courier New', monospace; }
 
         .preview-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--card-radius-sm);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
             overflow: hidden;
             margin-top: 10px;
         }
 
         .preview-photo { width: 100%; max-height: 200px; object-fit: cover; display: block; }
         .preview-body { padding: 14px 18px; font-size: 14px; color: var(--text-secondary); word-wrap: break-word; line-height: 1.5; }
-        .preview-body b, .preview-body strong { color: var(--primary-light); }
-        .preview-body code { background: var(--glass-bg); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
         .preview-buttons { display: flex; flex-direction: column; gap: 6px; padding: 0 14px 14px; }
-        .preview-btn { padding: 8px 12px; background: rgba(74, 144, 217, 0.15); border: 1px solid var(--primary); border-radius: 8px; text-align: center; font-size: 12px; color: var(--primary-light); font-weight: 600; }
+        .preview-btn { padding: 8px 12px; background: rgba(245, 179, 1, 0.12); border: 1px solid var(--primary); border-radius: 8px; text-align: center; font-size: 12px; color: var(--primary-soft); font-weight: 700; }
 
         .button-list-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: var(--bg-2);
+            border: 1px solid var(--border-soft);
             border-radius: 10px;
             padding: 8px 12px;
             margin-bottom: 6px;
         }
 
         .button-list-item .btn-info { flex: 1; min-width: 0; }
-        .button-list-item .btn-info .bname { font-size: 12px; font-weight: 700; color: var(--primary-light); }
+        .button-list-item .btn-info .bname { font-size: 12px; font-weight: 800; color: var(--primary-soft); }
         .button-list-item .btn-info .burl { font-size: 10px; color: var(--text-muted); word-break: break-all; }
         .button-list-item .btn-actions { display: flex; gap: 4px; flex-shrink: 0; }
 
@@ -655,14 +580,12 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(15, 20, 35, 0.98);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid var(--glass-border);
+            background: var(--surface);
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
             padding: 8px 4px 12px;
             z-index: 100;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .nav-item {
@@ -677,14 +600,12 @@
             gap: 3px;
             padding: 6px 2px;
             border-radius: 12px;
-            transition: var(--transition);
             font-family: inherit;
         }
 
         .nav-item i { font-size: 18px; }
-        .nav-item span { font-size: 9px; font-weight: 600; letter-spacing: 0.2px; }
-        .nav-item.active { color: var(--primary-light); background: rgba(74, 144, 217, 0.1); }
-        .nav-item.active i { color: var(--primary); }
+        .nav-item span { font-size: 9px; font-weight: 700; letter-spacing: 0.2px; }
+        .nav-item.active { color: var(--primary); background: rgba(245, 179, 1, 0.1); }
 
         .flex { display: flex; align-items: center; gap: 8px; }
         .flex-wrap { flex-wrap: wrap; }
@@ -702,10 +623,10 @@
             .grid-2 { grid-template-columns: 1fr; }
             .header h1 { font-size: 16px; }
             .header-logo { width: 40px; height: 40px; }
-            .stat-card .value { font-size: 16px; }
+            .stat-card .value { font-size: 15px; }
             .stat-card { padding: 10px 6px; }
             .stat-card .label { font-size: 8px; }
-            .topuser-item { grid-template-columns: 30px 1fr 80px 40px; font-size: 12px; }
+            .topuser-item { grid-template-columns: 30px 1fr 90px 40px; font-size: 12px; }
             .user-card-grid { grid-template-columns: 1fr 1fr; }
             .user-actions-grid { grid-template-columns: 1fr 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -715,7 +636,7 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid rgba(74, 144, 217, 0.2);
+            border: 2px solid rgba(245, 179, 1, 0.2);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -729,7 +650,7 @@
 <div id="login-screen" class="login-screen">
     <div class="login-container">
         <div class="login-logo">
-            <img src="https://slho.shop/i/8067" alt="Logo">
+            <img src="https://slho.shop/i/8281" alt="Logo">
         </div>
         <h1>Admin Panel</h1>
         <p class="login-sub">Enter password to access</p>
@@ -745,7 +666,7 @@
     <div class="container">
         <div class="header">
             <div class="header-left">
-                <img src="https://slho.shop/i/8067" class="header-logo" alt="Logo">
+                <img src="https://slho.shop/i/8281" class="header-logo" alt="Logo">
                 <h1>Admin Panel</h1>
             </div>
         </div>
@@ -753,9 +674,9 @@
         <div class="stats-wrapper">
             <div class="stats-grid" id="stats-grid">
                 <div class="stat-card"><div class="value" id="stat-users">-</div><div class="label"><i class="fas fa-users"></i> Users</div></div>
-                <div class="stat-card"><div class="value" id="stat-withdrawals">-</div><div class="label"><i class="fas fa-arrow-up-right-from-square"></i> Withdrawals</div></div>
-                <div class="stat-card"><div class="value" id="stat-tasks">-</div><div class="label"><i class="fas fa-tasks"></i> Tasks</div></div>
-                <div class="stat-card"><div class="value" id="stat-codes">-</div><div class="label"><i class="fas fa-ticket"></i> Promos</div></div>
+                <div class="stat-card"><div class="value" id="stat-mining">-</div><div class="label"><i class="fas fa-coins"></i> Mining</div></div>
+                <div class="stat-card"><div class="value" id="stat-withdrawable">-</div><div class="label"><i class="fas fa-wallet"></i> Withdrawable</div></div>
+                <div class="stat-card"><div class="value" id="stat-withdrawn">-</div><div class="label"><i class="fas fa-arrow-up-right-from-square"></i> Paid</div></div>
             </div>
             <button class="refresh-stats-btn" onclick="loadStats()"><i class="fas fa-sync"></i> Update Stats</button>
         </div>
@@ -869,13 +790,7 @@
                             <button class="btn btn-outline btn-icon" id="promo-generate-btn"><i class="fas fa-dice"></i></button>
                         </div>
                     </div>
-                    <div class="form-group"><label>Reward Amount</label><input class="form-control" id="promo-reward" type="number" value="100"></div>
-                    <div class="form-group"><label>Reward Type</label>
-                        <select class="form-control" id="promo-type">
-                            <option value="power">Power</option>
-                            <option value="coin">COIN</option>
-                        </select>
-                    </div>
+                    <div class="form-group"><label>Reward Amount (GRAM)</label><input class="form-control" id="promo-reward" type="number" value="0.02" step="0.00000001"></div>
                     <div class="form-group"><label>Max Uses</label><input class="form-control" id="promo-max-uses" type="number" value="999999"></div>
                     <div class="form-group"><label>Required Channel (optional)</label><input class="form-control" id="promo-required-channel" placeholder="@channel or username"></div>
                 </div>
@@ -970,9 +885,9 @@
                 <div class="card-title"><i class="fas fa-chart-line"></i> Top Users</div>
                 <div class="filter-row">
                     <select class="form-control" id="topusers-type">
-                        <option value="power">Top Power</option>
-                        <option value="coin" selected>Top COIN</option>
-                        <option value="referrals">Top Leaders</option>
+                        <option value="mining" selected>Top Mining Balance</option>
+                        <option value="withdrawable">Top Withdrawable</option>
+                        <option value="referrals">Top Referrals</option>
                     </select>
                     <select class="form-control" id="topusers-limit">
                         <option value="10" selected>10</option>
@@ -1006,8 +921,8 @@
         <div class="modal-title"><i class="fas fa-coins"></i> <span id="balance-modal-title">Modify Balance</span></div>
         <div class="modal-subtitle" id="balance-modal-subtitle"></div>
         <div class="form-group">
-            <label>Amount</label>
-            <input class="form-control" id="balance-amount" type="number" placeholder="Enter amount" step="0.00001">
+            <label>Amount (GRAM)</label>
+            <input class="form-control" id="balance-amount" type="number" placeholder="Enter amount" step="0.00000001">
         </div>
         <div class="modal-actions">
             <button class="btn btn-outline" onclick="closeBalanceModal()">Cancel</button>
@@ -1153,11 +1068,12 @@ async function apiCall(endpoint, data) {
     }
 }
 
-function formatNumber(num) {
-    num = parseFloat(num) || 0;
-    if (num >= 1000000) return (num / 1000000).toFixed(3) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(3) + 'K';
-    return num.toFixed(num % 1 === 0 ? 0 : 3);
+function formatGram(num) {
+    return (parseFloat(num) || 0).toFixed(4);
+}
+
+function formatGramFull(num) {
+    return (parseFloat(num) || 0).toFixed(8);
 }
 
 function formatDate(ts) {
@@ -1172,6 +1088,10 @@ function formatDate(ts) {
 function truncate(str, len) {
     if (!str) return 'User';
     return str.length > len ? str.substring(0, len) + '…' : str;
+}
+
+function escName(name) {
+    return (name || 'User').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 function initApp() {
@@ -1200,9 +1120,9 @@ async function loadStats() {
     const result = await apiCall('/admin/stats');
     if (result && result.success) {
         document.getElementById('stat-users').textContent = result.data.totalUsers || 0;
-        document.getElementById('stat-withdrawals').textContent = result.data.totalWithdrawals || 0;
-        document.getElementById('stat-tasks').textContent = result.data.totalTasks || 0;
-        document.getElementById('stat-codes').textContent = result.data.totalCodes || 0;
+        document.getElementById('stat-mining').textContent = formatGram(result.data.totalMining || 0);
+        document.getElementById('stat-withdrawable').textContent = formatGram(result.data.totalWithdrawable || 0);
+        document.getElementById('stat-withdrawn').textContent = formatGram(result.data.totalWithdrawn || 0);
     }
 }
 
@@ -1231,14 +1151,14 @@ function renderUserCard(u) {
     const status = u.state === 'ban' ? 'Banned' : 'Active';
     const statusClass = u.state === 'ban' ? 'badge-rejected' : 'badge-active';
     const blockedBadge = u.bot_blocked ? '<span class="badge badge-blocked"><i class="fas fa-ban"></i> Bot Blocked</span>' : '';
-    const ownedCount = (u.owned_miners || []).length;
     const joinDate = formatDate(u.created_at);
+    const welcomeBadge = u.welcome_bonus_claimed ? '<span class="badge badge-active">✅ Claimed</span>' : '<span class="badge badge-pending">Not Claimed</span>';
 
     return `
         <div class="user-card">
             <div class="user-card-header">
                 <div class="user-card-main">
-                    <img src="${u.photo_url || 'https://slho.shop/i/8067'}" class="user-card-avatar" onerror="this.src='https://slho.shop/i/8067'">
+                    <img src="${u.photo_url || 'https://slho.shop/i/8281'}" class="user-card-avatar" onerror="this.src='https://slho.shop/i/8281'">
                     <div>
                         <div class="user-card-name">${u.first_name || 'User'}</div>
                         <div class="user-card-id">ID: ${u.id}${u.username ? ' · @' + u.username : ''}</div>
@@ -1250,28 +1170,29 @@ function renderUserCard(u) {
                 </div>
             </div>
             <div class="user-card-grid">
-                <div class="user-card-item"><span class="label">COIN</span><span class="value">${formatNumber(u.coin_balance || 0)}</span></div>
-                <div class="user-card-item"><span class="label">Power</span><span class="value">${formatNumber(u.power_balance || 0)}</span></div>
-                <div class="user-card-item"><span class="label">Referrals</span><span class="value">${u.total_referrals || 0}</span></div>
-                <div class="user-card-item"><span class="label">Tasks</span><span class="value">${u.total_tasks_completed || 0}</span></div>
-                <div class="user-card-item"><span class="label">Ref COIN</span><span class="value">${formatNumber(u.referral_coin_earnings || 0)}</span></div>
-                <div class="user-card-item"><span class="label">Ref Power</span><span class="value">${formatNumber(u.referral_power_earnings || 0)}</span></div>
-                <div class="user-card-item"><span class="label">Total Miners</span><span class="value">${ownedCount}</span></div>
-                <div class="user-card-item"><span class="label">Live Miner</span><span class="value" style="font-size:13px;">${u.miner_id || 'None'}</span></div>
+                <div class="user-card-item"><span class="label">Mining Balance</span><span class="value">${formatGramFull(u.mining_balance || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Withdrawable</span><span class="value">${formatGramFull(u.withdrawable_balance || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Ref Earnings</span><span class="value">${formatGramFull(u.referral_gram_earnings || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Pending GRAM</span><span class="value">${formatGramFull(u.pending_gram_reward || 0)}</span></div>
+                <div class="user-card-item"><span class="label">Total Referrals</span><span class="value">${u.total_referrals || 0}</span></div>
+                <div class="user-card-item"><span class="label">Verified Refs</span><span class="value">${u.verified_referrals || 0}</span></div>
+                <div class="user-card-item"><span class="label">Tasks Done</span><span class="value">${u.total_tasks_completed || 0}</span></div>
+                <div class="user-card-item"><span class="label">Mining Starts</span><span class="value">${u.total_mining_starts || 0}</span></div>
+                <div class="user-card-item full-width"><span class="label">Welcome Bonus</span><span class="value">${welcomeBadge}</span></div>
                 <div class="user-card-item full-width"><span class="label">Joining Date</span><span class="value">${joinDate}</span></div>
             </div>
             <div class="user-actions-grid">
-                <button class="user-action-btn action-add-coin" onclick="openBalanceModal(${u.id}, 'coin_balance', 'add', '${(u.first_name || 'User').replace(/'/g, '')}')">
-                    <i class="fas fa-plus-circle"></i> Add COIN
+                <button class="user-action-btn action-add-mining" onclick="openBalanceModal(${u.id}, 'mining_balance', 'add', '${escName(u.first_name)}')">
+                    <i class="fas fa-plus-circle"></i> Add Mining
                 </button>
-                <button class="user-action-btn action-deduct-coin" onclick="openBalanceModal(${u.id}, 'coin_balance', 'deduct', '${(u.first_name || 'User').replace(/'/g, '')}')">
-                    <i class="fas fa-minus-circle"></i> Deduct COIN
+                <button class="user-action-btn action-deduct-mining" onclick="openBalanceModal(${u.id}, 'mining_balance', 'deduct', '${escName(u.first_name)}')">
+                    <i class="fas fa-minus-circle"></i> Deduct Mining
                 </button>
-                <button class="user-action-btn action-add-power" onclick="openBalanceModal(${u.id}, 'power_balance', 'add', '${(u.first_name || 'User').replace(/'/g, '')}')">
-                    <i class="fas fa-bolt"></i> Add Power
+                <button class="user-action-btn action-add-withdrawable" onclick="openBalanceModal(${u.id}, 'withdrawable_balance', 'add', '${escName(u.first_name)}')">
+                    <i class="fas fa-wallet"></i> Add Withdrawable
                 </button>
-                <button class="user-action-btn action-deduct-power" onclick="openBalanceModal(${u.id}, 'power_balance', 'deduct', '${(u.first_name || 'User').replace(/'/g, '')}')">
-                    <i class="fas fa-bolt"></i> Deduct Power
+                <button class="user-action-btn action-deduct-withdrawable" onclick="openBalanceModal(${u.id}, 'withdrawable_balance', 'deduct', '${escName(u.first_name)}')">
+                    <i class="fas fa-wallet"></i> Deduct Withdrawable
                 </button>
                 <button class="user-action-btn action-reset" onclick="resetDevice(${u.id})">
                     <i class="fas fa-mobile-alt"></i> Reset Device
@@ -1293,7 +1214,7 @@ let balanceModalData = null;
 
 function openBalanceModal(userId, type, action, userName) {
     balanceModalData = { userId, type, action };
-    const typeLabel = type === 'coin_balance' ? 'COIN' : 'Power';
+    const typeLabel = type === 'mining_balance' ? 'Mining Balance' : 'Withdrawable Balance';
     const actionLabel = action === 'add' ? 'Add' : 'Deduct';
     document.getElementById('balance-modal-title').textContent = actionLabel + ' ' + typeLabel;
     document.getElementById('balance-modal-subtitle').textContent = actionLabel + ' ' + typeLabel + ' for ' + userName + ' (ID: ' + userId + ')';
@@ -1407,11 +1328,8 @@ async function createTask() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Creating...';
 
-    const rewardMap = { main: 200, partner: 100, community: 200 };
-    const reward = rewardMap[category] || 100;
-
     const result = await apiCall('/admin/tasks/create', {
-        name, url, category, reward, maxCompletions, owner, verification, sendNotify
+        name, url, category, maxCompletions, owner, verification, sendNotify
     });
 
     btn.disabled = false;
@@ -1562,15 +1480,14 @@ async function loadWithdrawals() {
             <div class="list-card">
                 <div class="list-card-header">
                     <div class="list-card-title">
-                        <span class="list-card-name">${(w.gram_amount || 0).toFixed(8)} GRAM</span>
+                        <span class="list-card-name">${formatGramFull(w.gram_amount || 0)} GRAM</span>
                         <span class="list-card-id">#${w.id}</span>
                     </div>
                     <span class="badge ${statusClass}">${w.status}</span>
                 </div>
                 <div class="list-card-body">
                     <div class="row"><span class="label">User:</span> <span>${w.user_id}</span></div>
-                    <div class="row"><span class="label">COIN:</span> <span>${formatNumber(w.amount)}</span></div>
-                    <div class="row"><span class="label">Wallet:</span> <span style="font-family:monospace;font-size:11px;">${w.wallet_masked || 'N/A'}</span></div>
+                    <div class="row"><span class="label">Wallet:</span> <span style="font-family:monospace;font-size:11px;">${w.wallet || 'N/A'}</span></div>
                     ${w.tx_id ? `<div class="row"><span class="label">Track ID:</span> <span style="font-family:monospace;font-size:11px;">${w.tx_id}</span></div>` : ''}
                     <div class="row"><span class="label">Date:</span> <span>${dateStr}</span></div>
                     ${explorerLink}
@@ -1586,7 +1503,7 @@ async function loadWithdrawals() {
 }
 
 async function updateWithdrawalStatus(transactionId, status) {
-    const msg = status === 'rejected' ? 'Reject withdrawal and refund COIN?' : 'Approve withdrawal?';
+    const msg = status === 'rejected' ? 'Reject withdrawal and refund GRAM?' : 'Approve withdrawal?';
     showConfirm('Update Withdrawal', msg, async () => {
         const result = await apiCall('/admin/withdrawals/update-status', { transactionId, status });
         if (result && result.success) { toast('Withdrawal ' + status, 'success'); loadWithdrawals(); }
@@ -1609,8 +1526,7 @@ function generatePromo() {
 
 async function createPromo() {
     const code = document.getElementById('promo-code').value.trim().toUpperCase();
-    const reward = parseFloat(document.getElementById('promo-reward').value) || 100;
-    const rewardType = document.getElementById('promo-type').value;
+    const reward = parseFloat(document.getElementById('promo-reward').value) || 0.02;
     const maxUses = parseInt(document.getElementById('promo-max-uses').value) || 999999;
     const requiredChannel = document.getElementById('promo-required-channel').value.trim().replace('@', '') || null;
 
@@ -1620,7 +1536,7 @@ async function createPromo() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Creating...';
 
-    const result = await apiCall('/admin/promo/create', { code, reward, rewardType, maxUses, requiredChannel });
+    const result = await apiCall('/admin/promo/create', { code, reward, rewardType: 'gram', maxUses, requiredChannel });
 
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-plus"></i> Create Promo';
@@ -1669,8 +1585,6 @@ async function loadPromoCodes() {
     }
 
     container.innerHTML = codes.map(p => {
-        const typeClass = p.reward_type === 'coin' ? 'badge-coin' : 'badge-power';
-        const typeLabel = p.reward_type === 'coin' ? 'COIN' : 'Power';
         const isCompleted = (p.total_uses || 0) >= (p.max_uses || 0);
         const statusBadge = isCompleted ? '<span class="badge badge-completed">Completed</span>' : '<span class="badge badge-active">Active</span>';
         const isAdminCode = !p.owner || p.owner === 0;
@@ -1690,7 +1604,7 @@ async function loadPromoCodes() {
                 <div class="list-card-body">
                     <div class="row">
                         <span class="label">Reward:</span>
-                        <span>${p.reward_amount} <span class="badge ${typeClass}">${typeLabel}</span></span>
+                        <span>${formatGramFull(p.reward_amount)} <span class="badge badge-gram">GRAM</span></span>
                     </div>
                     <div class="row">
                         <span class="label">Uses:</span>
@@ -1799,13 +1713,19 @@ async function sendNotification() {
     const progressFill = document.getElementById('notif-progress-fill');
     const statusText = document.getElementById('notif-status-text');
     progressDiv.style.display = 'block';
-    progressFill.style.width = '30%';
+    progressFill.style.width = '15%';
     statusText.textContent = 'Sending...';
+
+    const progressInterval = setInterval(() => {
+        const current = parseFloat(progressFill.style.width) || 0;
+        if (current < 85) progressFill.style.width = (current + 5) + '%';
+    }, 500);
 
     const result = await apiCall('/admin/notifications/send', {
         userId, message, buttons: notifButtons.length > 0 ? notifButtons : null, target, photoUrl
     });
 
+    clearInterval(progressInterval);
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Broadcast';
 
@@ -1845,13 +1765,13 @@ async function loadTopUsers() {
             <div class="topuser-item">
                 <span class="rank">${medal}</span>
                 <div class="user-info">
-                    <img src="${user.photo_url || 'https://slho.shop/i/8067'}" onerror="this.src='https://slho.shop/i/8067'">
+                    <img src="${user.photo_url || 'https://slho.shop/i/8281'}" onerror="this.src='https://slho.shop/i/8281'">
                     <div>
                         <div class="name">${truncate(user.first_name, 12)}</div>
                         <div class="id">ID: ${user.user_id}</div>
                     </div>
                 </div>
-                <div class="value">${formatNumber(user.value)}</div>
+                <div class="value">${formatGramFull(user.value)}</div>
                 <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.user_id})"><i class="fas fa-trash"></i></button>
             </div>
         `;
